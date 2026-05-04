@@ -429,6 +429,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "schema/AGENTS.md" in pr_tpl
     assert "githooks bullet" in pr_tpl
     assert "Regression pointers:" in pr_tpl
+    assert "tests/test_make_wiki_all_recipe.py" in pr_tpl
+    assert "ends with **`wiki-restore-runtime`**" in pr_tpl
     assert "tests/test_githooks_wiring.py" in pr_tpl
     assert "scripts/githooks/README.md" in pr_tpl
     assert "wiki-log-tail" in pr_tpl
