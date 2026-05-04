@@ -462,6 +462,7 @@ def test_orientation_docs_remain_linked() -> None:
     evidence = issue_tpl.split("## Evidence", 1)[1].split("## Gist alignment", 1)[0]
     assert "Step-order or gate regressions" in evidence
     assert "tests/test_make_wiki_all_recipe.py" in evidence
+    assert "WIKI_PRE_PUSH=all" in evidence
     assert "test_makefile_wiki_all_chains_wiki_test_before_ci" in issue_tpl
     assert "make wiki-test -q" in issue_tpl
     assert "tail **`wiki-restore-runtime`**" in issue_tpl
