@@ -295,6 +295,8 @@ def test_makefile_header_comments_mention_issue_templates() -> None:
     assert "tests/test_githooks_wiring.py" in head
     assert "tests/test_pipeline_step_order.py" in head
     assert "tests/test_karpathy_bridge_docs.py" in head
+    assert "tests/test_wiki_manager_fork_delta.py" in head
+    assert "tests/test_wiki_family_snapshot.py" in head
 
 
 def test_makefile_help_echoes_wiki_toolchain_issue_template() -> None:
@@ -316,8 +318,13 @@ def test_makefile_help_echoes_wiki_manager_targets() -> None:
     lines = (ROOT / "Makefile").read_text(encoding="utf-8").splitlines()
     echoed = "\n".join(ln for ln in lines if ln.strip().startswith("@echo"))
     assert "wiki-manager-list" in echoed
+    assert "wiki-manager-snapshot" in echoed
     assert "wiki-manager-report" in echoed
+    assert "wiki-manager-base-vs-manager-report" in echoed
     assert "wiki-manager-fork-delta-full" in echoed
+    assert "wiki-manager-base-vs-manager-full" in echoed
+    assert "wiki-manager-snapshot-json" in echoed
+    assert "wiki-manager-refresh-dry" in echoed
     assert "COMPARE=" in echoed
 
 

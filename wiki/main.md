@@ -1,17 +1,18 @@
 ---
 type: synthesis
 title: Wiki home
-updated: 2026-05-03
+updated: 2026-05-04
 lang_primary: en
 ---
 
 # Wiki home
 
-**LLM Wiki Manager** uses this **`wiki/`** tree as **machine-first LLM context** for the **four related repositories** (Manager, **LLM Wiki Base Model**, **Shaolin Monastery Research System**, **Tai-Pan Wiki**). **Human reader polish is out of scope.** Default paths and env wiring live in [[synthesis/llm-wiki-family-repositories]]. Policies and machine contracts still live under **`schema/`**. Forks add domain evidence under **`normalized/`** and their own narrative **`wiki/`** outside this checkout.
+**LLM Wiki Manager** uses this **`wiki/`** tree as **machine-first LLM context** for the **four related repositories** (Manager, **LLM Wiki Base Model**, **Shaolin Monastery Research System**, **Tai-Pan Wiki**). **Human reader polish is out of scope.** Default paths and env wiring live in [[synthesis/llm-wiki-family-repositories]]. Coordination **`make`** targets (**`make wiki-manager-refresh-dry`**, **`schema/wiki-manager.md`**) only print inventories and fork-delta reports. They do **not** merge **`wiki/`** prose into sibling repos. Policies and machine contracts still live under **`schema/`**. Forks add domain evidence under **`normalized/`** and their own narrative **`wiki/`** outside this checkout.
 
 ## See also
 
 - See also [[synthesis/llm-wiki-family-repositories]] (paths, roles, **`WIKI_MANAGER_*`** wiring for all four checkouts)
+- See also **`schema/wiki-manager.md`** (**`make wiki-manager-*`**, registry **`ai/schema/wiki_manager_registry.v1.json`**)
 - See also [[entities/example-entity]] (minimal example encyclopedia-style page)
 - See also [[synthesis/sources]] (alphabetical index of all source pages under `wiki/sources/`)
 - See also [[synthesis/activity-log]] (optional chronological log paired with compiler output under **`index/`**. **`make wiki-log-tail`** prints recent gist-style dated headings from the shell)

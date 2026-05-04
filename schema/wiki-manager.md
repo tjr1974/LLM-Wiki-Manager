@@ -34,7 +34,12 @@ This checkout is **LLM Wiki Manager**: a coordination layer on the same Karpathy
 | **`make wiki-manager-list`** | Print resolved `compare_root` and each child path (from env). |
 | **`make wiki-manager-report`** | **`fork_delta_report.py` only** per child (fast path inventory under **`ai/runtime/manager/<id>/fork_delta_report.min.json`**). |
 | **`make wiki-manager-fork-delta-full`** | For each child with a resolvable directory, run the same pipeline as **`make fork-delta-full`**, writing under **`ai/runtime/manager/<child-id>/`** so runs do not overwrite **`ai/runtime/fork_delta_*.min.json`**. |
-| Optional **`WIKI_MANAGER_ARGS`** | Example: **`WIKI_MANAGER_ARGS='--child tai-pan-wiki'`** targets one id. **`--dry-run`** lists work only. **`--require-all`** fails if any registered env path is missing. |
+| **`make wiki-manager-snapshot`** | Print (or **`--json`**) resolved paths plus optional Git **`HEAD`** short hash and dirty file counts for **Manager**, **Base Model** (when **`WIKI_MANAGER_COMPARE_ROOT`** is set), and each registry child. |
+| **`make wiki-manager-base-vs-manager-report`** | **`fork_delta_report.py`** only with **upstream = Base Model** (**`WIKI_MANAGER_COMPARE_ROOT`**) and **downstream = this Manager checkout**. Writes **`ai/runtime/manager/base-vs-manager/fork_delta_report.min.json`**. Use after **Base Model** tooling moves to see what to port into **Manager** before refreshing children. |
+| **`make wiki-manager-base-vs-manager-full`** | Same full fork-delta pipeline as **`make fork-delta-full`**, but **child** is **Manager** and **compare** is **Base Model**. Optional **`WIKI_MANAGER_ARGS='--dry-run'`** prints paths only. **`base-vs-manager-full --dry-run`** exits **0** and prints **skip** when **`WIKI_MANAGER_COMPARE_ROOT`** is unset so **`make wiki-manager-refresh-dry`** works on partial setups. |
+| **`make wiki-manager-snapshot-json`** | Same as **`make wiki-manager-snapshot`** with **`--json`** on stdout (machine inventory). |
+| **`make wiki-manager-refresh-dry`** | **`wiki-manager-list`**, **`wiki-manager-snapshot`**, **`base-vs-manager-full --dry-run`**, then **`wiki_manager_fork_delta.py full --dry-run`**. Safe default smoke when child env paths are not set yet. |
+| Optional **`WIKI_MANAGER_ARGS`** | Example: **`WIKI_MANAGER_ARGS='--child tai-pan-wiki'`** targets one id on **`report`** / **`full`**. **`--dry-run`** lists work only. **`--require-all`** fails if any registered env path is missing. |
 
 Single-child **`make`** parity: **`make fork-delta CHILD='…' COMPARE='…'`** and **`make fork-delta-full`** with the same variables pass **`--compare-root`** into **`fork_delta_report.py`** while keeping default outputs under **`ai/runtime/fork_delta_*.min.json`**.
 
@@ -45,6 +50,12 @@ python3 scripts/wiki_manager_fork_delta.py list
 python3 scripts/wiki_manager_fork_delta.py report --dry-run
 python3 scripts/wiki_manager_fork_delta.py full --dry-run
 python3 scripts/wiki_manager_fork_delta.py full --child shaolin-monastery-research-system
+python3 scripts/wiki_family_snapshot.py
+python3 scripts/wiki_family_snapshot.py --json
+python3 scripts/wiki_manager_fork_delta.py base-vs-manager-report
+python3 scripts/wiki_manager_fork_delta.py base-vs-manager-full --dry-run
+make wiki-manager-refresh-dry
+make wiki-manager-snapshot-json
 ```
 
 ## Environment variables
@@ -57,12 +68,19 @@ Documented in **`.env.example`**. Typical layout on one machine:
 
 ## Artifacts
 
-Per-child outputs live under **`ai/runtime/manager/<id>/`** (gitignored). Each bundle includes **`fork_delta_summary.min.json`**, **`fork_delta_backlog.md`**, and the same artifact names as the single-child **`make fork-delta-full`** flow.
+Outputs live under **`ai/runtime/manager/<id>/`** (gitignored). Each **managed child** bundle uses that child's registry **`id`**. The **Base Model versus Manager** bundle uses the fixed id **`base-vs-manager`**. Each full bundle includes **`fork_delta_summary.min.json`**, **`fork_delta_backlog.md`**, and the same artifact names as the single-child **`make fork-delta-full`** flow.
 
 ## Regression tests
 
-Use **`tests/test_wiki_manager_fork_delta.py`** for **`wiki_manager_fork_delta.py`** and registry edge cases. Use **`tests/test_fork_delta_report.py`** for **`--compare-root`** and split-root policy layout. Use **`tests/test_make_fork_delta_compare.py`** for **`Makefile`** **`fork-delta`** targets with **`COMPARE=`**.
+Use **`tests/test_wiki_manager_fork_delta.py`** for **`wiki_manager_fork_delta.py`** and registry edge cases. Use **`tests/test_wiki_family_snapshot.py`** for **`wiki_family_snapshot.py`**. Use **`tests/test_fork_delta_report.py`** for **`--compare-root`** and split-root policy layout. Use **`tests/test_make_fork_delta_compare.py`** for **`Makefile`** **`fork-delta`** targets with **`COMPARE=`**.
 
 ## Low-level compare flag
 
 **`scripts/fork_delta_report.py`** accepts **`--compare-root`** when **`--repo-root`** is the manager checkout: file comparison uses **compare-root** versus **child-root**, while outputs and policy resolution use **repo-root**. Legacy invocations omit **`--compare-root`** so behavior matches older **`make fork-delta`** usage. **compare-root** and **child-root** must resolve to different paths (including **`make fork-delta CHILD='…' COMPARE='…'`** when both are set).
+
+## See also
+
+- **`schema/fork-sync.md`** (upstreaming and **LLM Wiki Manager** as canonical toolchain home)
+- **`schema/human-wiki-automation-boundary.md`** (coordination outputs are read-only. No silent sibling **`wiki/`** merges)
+- **`scripts/githooks/README.md`** (optional **`pre-push`** modes. **`make wiki-manager-*`** targets are manual unless you extend the hook locally)
+- **`wiki/synthesis/llm-wiki-family-repositories.md`** (default paths and maintainer playbook for all four checkouts)

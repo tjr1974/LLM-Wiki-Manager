@@ -39,3 +39,7 @@ WIKI_PRE_PUSH=off git push
 **Note.** Hooks run in your shell environment. If forks use **`VALIDATE_WIKI_ARGS`**, export it before **`git push`** when you need the same **`validate_wiki.py`** flags as local **`make`**.
 
 **`make wiki-test` invocation.** **`WIKI_PRE_PUSH=all`** runs **`make wiki-all`**, which chains **`make wiki-test`**. Do not use **`make wiki-test -q`** (**`-q`** is not a **`pytest`** flag there. It becomes a stray **`make`** goal). Run **`pytest -q`** inside your venv instead (**README.md** Pre-push and **Assistant preamble → repo mechanics** table, **`proposed/README.md`**, **`schema/wiki-quickstart.md`** **Pytest and CI**, **`schema/karpathy-llm-wiki-bridge.md`** **Pytest leg**, **`schema/AGENTS.md`** githooks bullet, **`Makefile`** top comments, **`make help`**).
+
+## Multi-repo coordination (optional, not in the hook)
+
+**LLM Wiki Manager** can register sibling checkouts via **`WIKI_MANAGER_*`** env vars (**`schema/wiki-manager.md`**). Run **`make wiki-manager-refresh-dry`** or **`make wiki-manager-snapshot`** manually when you want path inventory and dry-run fork-delta steps before a push. Those targets do **not** run inside **`pre-push`** by default.

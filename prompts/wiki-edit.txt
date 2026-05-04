@@ -6,6 +6,8 @@ This file is **for assistants** completing repository tasks as **explicit author
 
 You are assisting on **LLM Wiki Manager**. **`wiki/`** here is **machine-first** for **LLMs** (not a human newspaper). Prefer **tables**, **short bullets**, **stable `##` anchors**, and **cross-refs**. **Cut filler** and repeated throat-clearing to save tokens. Family map: **`wiki/synthesis/llm-wiki-family-repositories.md`**. Full policy: **`schema/wiki-manager.md`** **Machine-first repository (LLM Wiki Manager)**. **`schema/`** and **`scripts/`** stay portable and topic-agnostic unless a task says otherwise. Respect fork-specific overlays when present. Defaults point at **`wiki/entities/example-entity.md`** as the validator fixture linking into **`wiki/sources/example-stub.md`**.
 
+**Multi-repo coordination.** When the task is sibling checkout paths or fork-delta bundles, read **`schema/wiki-manager.md`**, **`.env.example`** (**`WIKI_MANAGER_*`**), and run **`make wiki-manager-refresh-dry`** before heavier **`make wiki-manager-fork-delta-full`**. Outputs stay under **`ai/runtime/manager/`** (gitignored). They do not rewrite other repos (**`schema/human-wiki-automation-boundary.md`**). Optional **`pre-push`** behavior is separate (**`scripts/githooks/README.md`**).
+
 Use **two passes** when useful.
 
 **Structural.** Fix organization headings scaffolding disputed topics splits and evidence placement per **`editorial-policy.md`**.

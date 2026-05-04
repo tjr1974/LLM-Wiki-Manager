@@ -13,6 +13,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "ai/artifacts/query/",
         "SECURITY.md",
         "VALIDATE_WIKI_ARGS",
+        "WIKI_MANAGER_",
         "YYYY-MM-DD",
         "--strict-citation-meta",
         "[[disputes/",
@@ -39,6 +40,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "make wiki-analyze",
         "make wiki-hub",
         "make wiki-lint",
+        "make wiki-manager-fork-delta-full",
         "make wiki-query",
         "make wiki-queue-health",
         "make wiki-text",
@@ -60,6 +62,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "source_authority.v1.json",
         "wiki-fix-citations-dry",
         "wiki-log-tail",
+        "wiki-manager-refresh-dry",
         "wiki-restore-runtime",
         "make wiki-test -q",
         "wiki-test",
@@ -67,6 +70,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "wiki-source-triage-protocol.md",
         "wiki-quickstart.md",
         "schema/AGENTS.md",
+        "schema/wiki-manager.md",
         "Assistant preamble",
         "**Pytest leg**",
         "wiki/main.md",
@@ -123,7 +127,11 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "Narrow wiki typography" in text
     assert "## Canonical development hub" in text
     assert "## Regression tests" in text
+    assert "## See also" in text
+    assert "human-wiki-automation-boundary.md" in text
+    assert "scripts/githooks/README.md" in text
     assert "tests/test_wiki_manager_fork_delta.py" in text
+    assert "tests/test_wiki_family_snapshot.py" in text
     assert "tests/test_fork_delta_report.py" in text
     assert "tests/test_make_fork_delta_compare.py" in text
 
@@ -159,6 +167,7 @@ def test_karpathy_bridge_schema_doc_present_and_linked() -> None:
     assert "### Operator synthesis and `lint_wiki.py` claim bullets" in text
     assert "llm-wiki-family-repositories.md" in text
     assert "markdown tables" in text.lower()
+    assert "wiki-manager-refresh-dry" in text
 
 
 def test_karpathy_bridge_memex_supervised_ingest_and_large_index_mitigations() -> None:
@@ -285,6 +294,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "karpathy-llm-wiki-bridge.md" in quickstart
     assert "Screenshots at repo root" in quickstart
     assert "## Regression tests" in quickstart
+    assert "wiki-manager-refresh-dry" in quickstart
     schema_agents = (ROOT / "schema" / "AGENTS.md").read_text(encoding="utf-8")
     assert "## Regression tests" in schema_agents
     assert "machine-first" in schema_agents.lower()
@@ -294,6 +304,7 @@ def test_orientation_docs_remain_linked() -> None:
     fork_sync = (ROOT / "schema" / "fork-sync.md").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in fork_sync
     assert "wiki-manager.md" in fork_sync
+    assert "wiki-manager-refresh-dry" in fork_sync
     assert "Regression tests" in fork_sync
     assert "canonical toolchain home" in fork_sync.lower()
     assert "machine-first" in fork_sync.lower()
@@ -307,6 +318,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "schema/article-quality-tracking.md" in fork_sync
     boundary = (ROOT / "schema" / "human-wiki-automation-boundary.md").read_text(encoding="utf-8")
     assert "wiki-log-tail" in boundary
+    assert "wiki-manager-refresh-dry" in boundary
     assert "llm-wiki-family-repositories.md" in boundary
     assert "machine-first" in boundary.lower()
     assert "karpathy-llm-wiki-bridge.md" in boundary
@@ -344,6 +356,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "## Regression tests`** for pytest paths" in readme
     assert "canonical development home" in readme.lower()
     assert "llm-wiki-family-repositories.md" in readme
+    assert "wiki-manager-refresh-dry" in readme
     assert "machine-first" in readme.lower()
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in readme
     assert "llm_wiki_" in readme
@@ -351,12 +364,17 @@ def test_orientation_docs_remain_linked() -> None:
     assert "Operator note" in readme
     assert "SECURITY.md" in readme
     assert "Root screenshots" in readme
-    assert "wiki-log-tail" in (ROOT / "wiki" / "main.md").read_text(encoding="utf-8")
+    main_wiki = (ROOT / "wiki" / "main.md").read_text(encoding="utf-8")
+    assert "wiki-log-tail" in main_wiki
+    assert "wiki-manager-refresh-dry" in main_wiki
+    assert "schema/wiki-manager.md" in main_wiki
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in makefile
     assert "writeback_artifact.py" in makefile
     assert "wiki-log-tail" in makefile
     proposed_readme = (ROOT / "proposed" / "README.md").read_text(encoding="utf-8")
+    assert "wiki-manager-refresh-dry" in proposed_readme
+    assert "schema/wiki-manager.md" in proposed_readme
     assert "wiki-toolchain.md" in proposed_readme
     assert "config.yml" in proposed_readme
     assert "Assistant preamble" in proposed_readme
@@ -395,7 +413,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-toolchain.md" in ci_yml
     assert "config.yml" in ci_yml
     assert "wiki-manager-list" in ci_yml
+    assert "wiki-manager-snapshot" in ci_yml
+    assert "wiki-manager-refresh-dry" in ci_yml
     assert "test_wiki_manager_fork_delta.py" in ci_yml
+    assert "test_wiki_family_snapshot.py" in ci_yml
     assert "test_fork_delta_report.py" in ci_yml
     assert "test_make_fork_delta_compare.py" in ci_yml
     pr_tpl = (ROOT / ".github/pull_request_template.md").read_text(encoding="utf-8")
@@ -415,9 +436,13 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-toolchain.md" in pr_tpl
     assert "config.yml" in pr_tpl
     assert "wiki-manager-list" in pr_tpl
+    assert "wiki-manager-refresh-dry" in pr_tpl
+    assert "wiki-manager-snapshot" in pr_tpl
     assert "wiki_manager_fork_delta.py" in pr_tpl
+    assert "wiki_family_snapshot.py" in pr_tpl
     assert "fork_delta_report.py" in pr_tpl
     assert "tests/test_wiki_manager_fork_delta.py" in pr_tpl
+    assert "tests/test_wiki_family_snapshot.py" in pr_tpl
     assert "tests/test_fork_delta_report.py" in pr_tpl
     assert "tests/test_make_fork_delta_compare.py" in pr_tpl
     assert "Pytest map:" in pr_tpl
@@ -455,6 +480,9 @@ def test_orientation_docs_remain_linked() -> None:
     assert ".cursor/rules" in issue_tpl
     assert "test_pipeline_step_order.py" in issue_tpl
     assert "test_wiki_manager_fork_delta.py" in issue_tpl
+    assert "wiki_family_snapshot.py" in issue_tpl
+    assert "wiki-manager-refresh-dry" in issue_tpl
+    assert "test_wiki_family_snapshot.py" in issue_tpl
     assert "test_fork_delta_report.py" in issue_tpl
     assert "## Regression tests" in issue_tpl
     assert "config.yml" in issue_tpl
@@ -494,6 +522,8 @@ def test_wiki_quickstart_read_first_lists_bridge() -> None:
 
 def test_ingest_prompt_mentions_root_screenshot_hygiene() -> None:
     text = (ROOT / "prompts" / "ingest.txt").read_text(encoding="utf-8")
+    assert "wiki-manager-refresh-dry" in text
+    assert "schema/wiki-manager.md" in text
     assert "make wiki-test -q" in text
     assert "**Pytest leg**" in text
     assert "schema/AGENTS.md" in text
@@ -506,6 +536,8 @@ def test_ingest_prompt_mentions_root_screenshot_hygiene() -> None:
 def test_wiki_edit_prompt_mentions_query_writeback() -> None:
     edit = (ROOT / "prompts" / "wiki-edit.txt").read_text(encoding="utf-8")
     assert "Avoid semicolons" in edit
+    assert "wiki-manager-refresh-dry" in edit
+    assert "human-wiki-automation-boundary.md" in edit
     assert "make wiki-test -q" in edit
     assert "**Pytest leg**" in edit
     assert "schema/AGENTS.md" in edit
@@ -534,6 +566,8 @@ def test_llm_wiki_family_synthesis_page_lists_four_paths() -> None:
     ):
         assert path in body, path
     assert "machine-first" in body.lower()
+    assert "wiki-manager-refresh-dry" in body
+    assert "scripts/githooks/README.md" in body
 
 
 def test_cursor_wiki_rules_files_present_and_scoped() -> None:
@@ -550,6 +584,9 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
         assert "alwaysApply:" in head, path
     a = authoring.read_text(encoding="utf-8")
     assert "make wiki-test -q" in a
+    assert "wiki-manager-refresh-dry" in a
+    assert "schema/wiki-manager.md" in a
+    assert "llm-wiki-family-repositories.md" in a
     assert "proposed/README.md" in a
     assert "**Pytest leg**" in a
     assert "**`schema/AGENTS.md`** (githooks bullet)" in a

@@ -381,3 +381,64 @@ def test_wiki_manager_report_writes_only_fork_delta_report(tmp_path: Path, monke
         assert not (bundle / "fork_delta_scan.min.json").exists()
     finally:
         shutil.rmtree(bundle, ignore_errors=True)
+
+
+def test_base_vs_manager_full_dry_run_skips_when_compare_root_not_set(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("WIKI_MANAGER_COMPARE_ROOT", raising=False)
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "wiki_manager_fork_delta.py"),
+            "--repo-root",
+            str(ROOT),
+            "base-vs-manager-full",
+            "--dry-run",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0, r.stderr + r.stdout
+    assert "skip base-vs-manager-full" in (r.stdout + r.stderr).lower()
+
+
+def test_make_wiki_manager_refresh_dry_runs() -> None:
+    r = subprocess.run(["make", "-C", str(ROOT), "wiki-manager-refresh-dry"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr + r.stdout
+    out = r.stdout + r.stderr
+    assert "compare_root" in out.lower() or "manager_root" in out.lower()
+
+
+def test_base_vs_manager_report_exits_when_compare_root_not_set(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("WIKI_MANAGER_COMPARE_ROOT", raising=False)
+    r = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "wiki_manager_fork_delta.py"), "--repo-root", str(ROOT), "base-vs-manager-report"],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 2, r.stderr + r.stdout
+    combined = (r.stdout + r.stderr).lower()
+    assert "wiki_manager_compare_root" in combined or "compare_root" in combined
+
+
+def test_base_vs_manager_report_writes_bundle(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    base = tmp_path / "base-model"
+    (base / "scripts").mkdir(parents=True)
+    _write(base / "scripts" / "stub.py", "#\n")
+    _write(base / "Makefile", "all:\n\t@true\n")
+    bundle = ROOT / "ai/runtime/manager/base-vs-manager"
+    report_file = bundle / "fork_delta_report.min.json"
+    shutil.rmtree(bundle, ignore_errors=True)
+    monkeypatch.setenv("WIKI_MANAGER_COMPARE_ROOT", str(base))
+    try:
+        r = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "wiki_manager_fork_delta.py"), "--repo-root", str(ROOT), "base-vs-manager-report"],
+            capture_output=True,
+            text=True,
+        )
+        assert r.returncode == 0, r.stderr + r.stdout
+        assert report_file.is_file(), r.stderr + r.stdout
+        payload = json.loads(report_file.read_text(encoding="utf-8"))
+        assert payload.get("parent_root") == str(base.resolve())
+        assert payload.get("child_root") == str(ROOT.resolve())
+    finally:
+        shutil.rmtree(bundle, ignore_errors=True)

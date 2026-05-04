@@ -11,8 +11,9 @@ this manager repo should compare that canonical upstream against each child
 while keeping policy and outputs in the manager checkout.
 
 See **schema/karpathy-llm-wiki-bridge.md** and **schema/wiki-manager.md**.
-**## Regression tests** in **schema/wiki-manager.md** lists pytest files for
-this CLI and registry wiring.
+Subcommands **base-vs-manager-report** and **base-vs-manager-full** diff **LLM Wiki Base Model**
+(**WIKI_MANAGER_COMPARE_ROOT**) against **this** checkout. **## Regression tests** in
+**schema/wiki-manager.md** lists pytest files for this CLI and registry wiring.
 """
 
 from __future__ import annotations
@@ -38,6 +39,13 @@ _CHILD_EQUALS_COMPARE_EXPLAIN = (
     "Set compare_root (**WIKI_MANAGER_COMPARE_ROOT**) to a sibling upstream tree or point each child "
     "**path_env** at a domain fork checkout. Subcommands **report** and **full** skip this id unless "
     "**--require-all** (then exit 2)."
+)
+
+# Stable bundle id under ai/runtime/manager/<id>/ for Base Model (left) vs this Manager checkout (right).
+_BASE_VS_MANAGER_ID = "base-vs-manager"
+_BASE_VS_MANAGER_COMPARE_HINT = (
+    "Set WIKI_MANAGER_COMPARE_ROOT (see ai/schema/wiki_manager_registry.v1.json compare_root_env) "
+    "to your LLM Wiki Base Model checkout so compare_root differs from this manager tree."
 )
 
 
@@ -426,6 +434,41 @@ def cmd_report(
     )
 
 
+def _resolved_base_compare_root(registry: dict, manager_root: Path) -> Path:
+    """Return Base Model path from env, or raise SystemExit(2) if unset or invalid."""
+    cr = _compare_root(registry, manager_root)
+    if cr.resolve() == manager_root.resolve():
+        print("base-vs-manager: " + _BASE_VS_MANAGER_COMPARE_HINT, file=sys.stderr)
+        raise SystemExit(2)
+    return cr
+
+
+def cmd_base_vs_manager_report(manager_root: Path, registry: dict) -> int:
+    base = _resolved_base_compare_root(registry, manager_root)
+    return run_report_for_child(manager_root, base, manager_root.resolve(), _BASE_VS_MANAGER_ID)
+
+
+def cmd_base_vs_manager_full(manager_root: Path, registry: dict, *, dry_run: bool) -> int:
+    cr = _compare_root(registry, manager_root)
+    mr = manager_root.resolve()
+    if cr.resolve() == mr.resolve():
+        if dry_run:
+            print(
+                "skip base-vs-manager-full --dry-run: WIKI_MANAGER_COMPARE_ROOT is unset or "
+                "resolves to this manager checkout. Export it to your LLM Wiki Base Model tree "
+                "to include this step (for example before make wiki-manager-refresh-dry)."
+            )
+            return 0
+        print("base-vs-manager: " + _BASE_VS_MANAGER_COMPARE_HINT, file=sys.stderr)
+        return 2
+    if dry_run:
+        print(f"=== wiki-manager base-vs-manager-full (dry-run) -> {_BASE_VS_MANAGER_ID}")
+        print(f"    compare_root (upstream): {cr}")
+        print(f"    child_root (manager): {mr}")
+        return 0
+    return run_full_for_child(manager_root, cr, mr, _BASE_VS_MANAGER_ID)
+
+
 def _parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--repo-root", default="", help="LLM Wiki Manager checkout root.")
@@ -458,6 +501,28 @@ def _parse_args() -> argparse.Namespace:
         help="Exit 2 if any registered child path is unset or missing.",
     )
     p_report.add_argument("--dry-run", action="store_true", help="Print which children would run without executing.")
+    p_bvm_r = sub.add_parser(
+        "base-vs-manager-report",
+        help=(
+            "fork_delta_report only: LLM Wiki Base Model (WIKI_MANAGER_COMPARE_ROOT) vs this manager checkout. "
+            f"Writes ai/runtime/manager/{_BASE_VS_MANAGER_ID}/fork_delta_report.min.json"
+        ),
+    )
+    p_bvm_r.set_defaults(handler="base-vs-manager-report")
+    p_bvm_f = sub.add_parser(
+        "base-vs-manager-full",
+        help=(
+            "Full fork-delta pipeline for Base Model vs this manager checkout (same bundle path prefix as report). "
+            "Requires WIKI_MANAGER_COMPARE_ROOT for a real run. With --dry-run only, exits 0 when the env is unset "
+            "(prints skip) so make wiki-manager-refresh-dry stays usable without local Base Model paths."
+        ),
+    )
+    p_bvm_f.set_defaults(handler="base-vs-manager-full")
+    p_bvm_f.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print paths only, do not run fork-delta steps. When compare_root is unset, prints skip and exits 0.",
+    )
     return ap.parse_args()
 
 
@@ -487,6 +552,10 @@ def main() -> int:
             require_all=bool(args.require_all),
             dry_run=bool(args.dry_run),
         )
+    if args.handler == "base-vs-manager-report":
+        return cmd_base_vs_manager_report(manager_root, registry)
+    if args.handler == "base-vs-manager-full":
+        return cmd_base_vs_manager_full(manager_root, registry, dry_run=bool(args.dry_run))
     return 2
 
 

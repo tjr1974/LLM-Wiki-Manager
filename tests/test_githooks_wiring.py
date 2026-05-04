@@ -44,6 +44,10 @@ def test_githooks_readme_documents_modes() -> None:
     assert "schema/wiki-quickstart.md" in text
     assert "schema/karpathy-llm-wiki-bridge.md" in text
     assert "schema/AGENTS.md" in text
+    assert "Multi-repo coordination" in text
+    assert "wiki-manager-refresh-dry" in text
+    assert "schema/wiki-manager.md" in text
+    assert "pre-push" in text.lower()
 
 
 def test_pre_push_skip_exits_zero() -> None:

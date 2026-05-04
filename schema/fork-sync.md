@@ -43,7 +43,7 @@ Topic-specific forks inherit this scaffold then add ingestion, dashboards, disco
 
 ## Comparing this base to a known downstream locally
 
-When using **LLM Wiki Manager** as a dedicated coordination checkout, **`make wiki-manager-list`** and **`make wiki-manager-fork-delta-full`** (see **`schema/wiki-manager.md`**) run the same fork-delta machinery for **each** registered child and write per-child bundles under **`ai/runtime/manager/<id>/`** without clobbering the default **`ai/runtime/fork_delta_*.min.json`** paths.
+When using **LLM Wiki Manager** as a dedicated coordination checkout, **`make wiki-manager-list`**, **`make wiki-manager-refresh-dry`** (no artifact writes), and **`make wiki-manager-fork-delta-full`** (see **`schema/wiki-manager.md`**) run the same fork-delta machinery for **each** registered child and write per-child bundles under **`ai/runtime/manager/<id>/`** without clobbering the default **`ai/runtime/fork_delta_*.min.json`** paths.
 
 When you change **`COMPARE=`**, **`--compare-root`**, or the registry layout, extend the tests listed under **`## Regression tests`** in **`schema/wiki-manager.md`**.
 

@@ -34,7 +34,7 @@ For a reusable assistant prompt template, see **`prompts/wiki-edit.txt`** in the
 
 Optional: **`protected-paths.md`** marks homepage template fragments as maintainer-directed in this scaffold. **`fork-sync.md`** explains what to merge back from domain forks into this neutral base.
 
-Optional: **`wiki-manager.md`** documents **`make wiki-manager-list`**, **`make wiki-manager-report`**, and **`make wiki-manager-fork-delta-full`** when one checkout coordinates several domain child wikis against a shared upstream. The same page lists pytest entry points under **`## Regression tests`** and explains **Canonical development hub** governance (**LLM Wiki Manager** as the default **development root** for shared **`scripts/`**, **`tests/`**, CI, **`Makefile`**, and neutral **`schema/`** work).
+Optional: **`wiki-manager.md`** documents **`make wiki-manager-list`**, **`make wiki-manager-snapshot`**, **`make wiki-manager-snapshot-json`**, **`make wiki-manager-report`**, **`make wiki-manager-base-vs-manager-report`**, **`make wiki-manager-fork-delta-full`**, **`make wiki-manager-base-vs-manager-full`**, and **`make wiki-manager-refresh-dry`** when one checkout coordinates several domain child wikis against a shared upstream. The same page lists pytest entry points under **`## Regression tests`** and explains **Canonical development hub** governance (**LLM Wiki Manager** as the default **development root** for shared **`scripts/`**, **`tests/`**, CI, **`Makefile`**, and neutral **`schema/`** work).
 
 ---
 

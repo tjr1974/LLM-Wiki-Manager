@@ -46,9 +46,23 @@ On a **Manager** checkout, keep **`origin`** → Manager and add **`base-model`*
 | **LLM Wiki Base Model** | **Cherry-picked** neutral backports only. **Not** an unattended mirror of **Manager**. |
 | **Shaolin**, **Tai-Pan** | Keep **domain narrative** in their own **`wiki/`** trees. **Manager** **`wiki/`** here documents relations and how operators run **`make wiki-manager-*`**, **`make fork-delta`**, and gates. It does **not** replace their encyclopedic mission pages. |
 
+## When the Base Model checkout changes (operator playbook)
+
+Scripts do **not** merge **`wiki/`** prose into children unattended. Use **Manager** to **measure** drift then **cherry-pick** by subsystem per **`schema/fork-sync.md`**.
+
+| Step | Command or action |
+|------|-------------------|
+| 0 | Optional smoke without writing fork-delta artifacts: **`make wiki-manager-refresh-dry`**. |
+| 1 | Export **`WIKI_MANAGER_COMPARE_ROOT`**, **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** (see **`.env.example`**). |
+| 2 | **`make wiki-manager-snapshot`** or **`make wiki-manager-snapshot-json`** to confirm paths and Git dirty state. |
+| 3 | **`make wiki-manager-base-vs-manager-report`** then inspect **`ai/runtime/manager/base-vs-manager/fork_delta_report.min.json`** for shared files that moved in **Base Model** but not yet in **Manager**. Port neutral changes into **Manager** first. |
+| 4 | **`make wiki-manager-fork-delta-full`** with **`WIKI_MANAGER_COMPARE_ROOT`** set so each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
+| 5 | In each child repo run **`make wiki-all`** (or their documented merge gate) after ports. |
+
 ## See also
 
 - See also [[main]] (hub)
 - See also **`schema/wiki-manager.md`** (registry, **`## Regression tests`**, **Canonical development hub**)
 - See also **`schema/fork-sync.md`** (upstreaming and **LLM Wiki Manager as canonical toolchain home**)
+- See also **`scripts/githooks/README.md`** (optional **`pre-push`** versus manual **`make wiki-manager-*`** coordination)
 - See also **`README.md`** **Governance** at the repository root
