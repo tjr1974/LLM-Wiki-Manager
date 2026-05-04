@@ -295,6 +295,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "Makefile" in q_chunk and "make help" in q_chunk
     assert "make wiki-test -q" in q_chunk
     assert "karpathy-llm-wiki-bridge.md" in quickstart
+    assert "tests/test_make_wiki_all_recipe.py" in quickstart
     assert "Screenshots at repo root" in quickstart
     assert "## Regression tests" in quickstart
     assert "wiki-manager-refresh-dry" in quickstart
@@ -458,6 +459,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "## Regression tests" in pr_tpl
     assert "wiki/synthesis" in pr_tpl
     issue_tpl = (ROOT / ".github" / "ISSUE_TEMPLATE" / "wiki-toolchain.md").read_text(encoding="utf-8")
+    evidence = issue_tpl.split("## Evidence", 1)[1].split("## Gist alignment", 1)[0]
+    assert "Step-order or gate regressions" in evidence
+    assert "tests/test_make_wiki_all_recipe.py" in evidence
+    assert "test_makefile_wiki_all_chains_wiki_test_before_ci" in issue_tpl
     assert "make wiki-test -q" in issue_tpl
     assert "tail **`wiki-restore-runtime`**" in issue_tpl
     assert "**Pytest leg**" in issue_tpl
@@ -651,6 +656,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "prompts/wiki-corpus-authoring.txt" in p
     assert "prompts/ingest.txt" in p
     assert "test_pipeline_step_order.py" in p
+    assert "**`tests/test_make_wiki_all_recipe.py`** when **`wiki-all`**" in p
     assert ".github/workflows/ci.yml" in p
     assert "wiki-toolchain.md" in p
     assert "config.yml" in p
