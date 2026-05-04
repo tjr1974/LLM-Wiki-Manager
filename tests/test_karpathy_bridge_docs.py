@@ -406,6 +406,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_githooks_wiring.py" in ci_yml
     assert "tests/test_pipeline_step_order.py" in ci_yml
     assert "tests/test_karpathy_bridge_docs.py" in ci_yml
+    assert "tests/test_make_wiki_all_recipe.py" in ci_yml
     assert "wiki-log-tail" in ci_yml
     assert "make wiki-hub" in ci_yml
     assert "index drift" in ci_yml
@@ -638,6 +639,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "wiki-toolchain.md" in p
     assert "config.yml" in p
     assert "wiki_manager_fork_delta.py" in p
+    assert "**`.github/workflows/ci.yml`** (comments near **`wiki-test`**" in p
     assert "## Machine-first repository (LLM Wiki Manager)" in p
     assert "## Canonical development hub" in p
     assert "canonical toolchain home" in p.lower()
