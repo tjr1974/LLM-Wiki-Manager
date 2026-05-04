@@ -37,6 +37,7 @@ On a **Manager** checkout, keep **`origin`** → Manager and add **`base-model`*
 | **`WIKI_MANAGER_COMPARE_ROOT`** | Point at **LLM Wiki Base Model** when fork-delta should diff that tree against each child while policy JSON stays in **Manager**. |
 | **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** | Point at the two domain checkouts. See **`.env.example`** and **`schema/wiki-manager.md`**. |
 | **`make fork-delta CHILD='…' COMPARE='…'`** | Same compare semantics without the registry (single child). |
+| **GitHub Actions (default `ci` workflow)** | After **`make wiki-test`**, runs **`python3 scripts/wiki_manager_sync_status.py --json`** pipe smoke (**`.github/workflows/ci.yml`**). Full fork-delta bundles stay local (needs **`WIKI_MANAGER_*`** paths). |
 
 ## Governance in one glance
 
@@ -56,7 +57,8 @@ Scripts do **not** merge **`wiki/`** prose into children unattended. Use **Manag
 | 1 | Export **`WIKI_MANAGER_COMPARE_ROOT`**, **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** (see **`.env.example`**). |
 | 2 | **`make wiki-manager-snapshot`** or **`make wiki-manager-snapshot-json`** to confirm paths and Git dirty state. |
 | 3 | **`make wiki-manager-base-vs-manager-report`** then inspect **`ai/runtime/manager/base-vs-manager/fork_delta_report.min.json`** for shared files that moved in **Base Model** but not yet in **Manager**. Port neutral changes into **Manager** first. |
-| 4 | **`make wiki-manager-fork-delta-full`** with **`WIKI_MANAGER_COMPARE_ROOT`** set so each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
+| 4 | Prefer **`make wiki-manager-fork-delta-from-base`** (same as **`wiki-manager-fork-delta-full`** but **fails fast** if **`WIKI_MANAGER_COMPARE_ROOT`** is unset or points at this manager tree). Each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
+| 4b | **`make wiki-manager-sync-status`** (after step 4 or **`make wiki-manager-report-from-base`**) writes **`ai/runtime/manager/sync_status.min.json`**: one JSON rollup of Git heads, dirty counts, **`drift_compare_mode`**, and per-child **`fork_delta_report`** counts. |
 | 5 | In each child repo run **`make wiki-all`** (or their documented merge gate) after ports. |
 
 **LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates.

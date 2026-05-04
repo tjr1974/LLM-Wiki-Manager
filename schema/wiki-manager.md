@@ -34,6 +34,11 @@ This checkout is **LLM Wiki Manager**: a coordination layer on the same Karpathy
 | **`make wiki-manager-list`** | Print resolved `compare_root` and each child path (from env). |
 | **`make wiki-manager-report`** | **`fork_delta_report.py` only** per child (fast path inventory under **`ai/runtime/manager/<id>/fork_delta_report.min.json`**). |
 | **`make wiki-manager-fork-delta-full`** | For each child with a resolvable directory, run the same pipeline as **`make fork-delta-full`**, writing under **`ai/runtime/manager/<child-id>/`** so runs do not overwrite **`ai/runtime/fork_delta_*.min.json`**. |
+| **`make wiki-manager-fork-delta-from-base`** | Same as **`wiki-manager-fork-delta-full`** but **`--require-base-compare`**: exits **2** unless **`WIKI_MANAGER_COMPARE_ROOT`** resolves to a directory **other than** this manager checkout (forces **LLM Wiki Base Model** as diff left side). |
+| **`make wiki-manager-report-from-base`** | **`fork_delta_report.py` only** per child with **`--require-base-compare`** (same fail-fast guard as above). |
+| **`make wiki-manager-sync-status`** | Writes **`ai/runtime/manager/sync_status.min.json`**: embeds **`wiki_family_snapshot`** output plus per-child counts from existing **`fork_delta_report.min.json`** / **`fork_delta_summary.min.json`** when present (run **`wiki-manager-report`** or **`wiki-manager-fork-delta-full`** first). |
+| **`make wiki-manager-sync-status-json`** | Same with **`--json`** on stdout for piping. |
+| **`.github/workflows/ci.yml` (default)** | After **`make wiki-test`**, runs **`python3 scripts/wiki_manager_sync_status.py --json`** as import smoke. Does not require **`WIKI_MANAGER_*`**. Step order is guarded by **`tests/test_pipeline_step_order.py`** **`test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci`**. |
 | **`make wiki-manager-snapshot`** | Print (or **`--json`**) resolved paths plus optional Git **`HEAD`** short hash and dirty file counts for **Manager**, **Base Model** (when **`WIKI_MANAGER_COMPARE_ROOT`** is set), and each registry child. |
 | **`make wiki-manager-base-vs-manager-report`** | **`fork_delta_report.py`** only with **upstream = Base Model** (**`WIKI_MANAGER_COMPARE_ROOT`**) and **downstream = this Manager checkout**. Writes **`ai/runtime/manager/base-vs-manager/fork_delta_report.min.json`**. Use after **Base Model** tooling moves to see what to port into **Manager** before refreshing children. |
 | **`make wiki-manager-base-vs-manager-full`** | Same full fork-delta pipeline as **`make fork-delta-full`**, but **child** is **Manager** and **compare** is **Base Model**. Optional **`WIKI_MANAGER_ARGS='--dry-run'`** prints paths only. **`base-vs-manager-full --dry-run`** exits **0** and prints **skip** when **`WIKI_MANAGER_COMPARE_ROOT`** is unset so **`make wiki-manager-refresh-dry`** works on partial setups. |
@@ -53,10 +58,14 @@ Direct invocation:
 ```bash
 python3 scripts/wiki_manager_fork_delta.py list
 python3 scripts/wiki_manager_fork_delta.py report --dry-run
+python3 scripts/wiki_manager_fork_delta.py report --require-base-compare --dry-run
 python3 scripts/wiki_manager_fork_delta.py full --dry-run
+python3 scripts/wiki_manager_fork_delta.py full --require-base-compare --dry-run
 python3 scripts/wiki_manager_fork_delta.py full --child shaolin-monastery-research-system
 python3 scripts/wiki_family_snapshot.py
 python3 scripts/wiki_family_snapshot.py --json
+python3 scripts/wiki_manager_sync_status.py
+python3 scripts/wiki_manager_sync_status.py --json
 python3 scripts/wiki_manager_fork_delta.py base-vs-manager-report
 python3 scripts/wiki_manager_fork_delta.py base-vs-manager-full --dry-run
 make wiki-manager-refresh-dry
@@ -77,7 +86,7 @@ Outputs live under **`ai/runtime/manager/<id>/`** (gitignored). Each **managed c
 
 ## Regression tests
 
-Use **`tests/test_wiki_manager_fork_delta.py`** for **`wiki_manager_fork_delta.py`** and registry edge cases. Use **`tests/test_wiki_family_snapshot.py`** for **`wiki_family_snapshot.py`**. Use **`tests/test_fork_delta_report.py`** for **`--compare-root`** and split-root policy layout. Use **`tests/test_make_fork_delta_compare.py`** for **`Makefile`** **`fork-delta`** targets with **`COMPARE=`**.
+Use **`tests/test_wiki_manager_fork_delta.py`** for **`wiki_manager_fork_delta.py`** and registry edge cases. Use **`tests/test_wiki_family_snapshot.py`** for **`wiki_family_snapshot.py`**. Use **`tests/test_wiki_manager_sync_status.py`** for **`wiki_manager_sync_status.py`**. Use **`tests/test_pipeline_step_order.py`** for **`Makefile`** and **`.github/workflows/ci.yml`** ordering (**`test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci`** covers **`wiki_manager_sync_status.py`** smoke placement after **`wiki-test`**). Use **`tests/test_fork_delta_report.py`** for **`--compare-root`** and split-root policy layout. Use **`tests/test_make_fork_delta_compare.py`** for **`Makefile`** **`fork-delta`** targets with **`COMPARE=`**.
 
 ## Low-level compare flag
 

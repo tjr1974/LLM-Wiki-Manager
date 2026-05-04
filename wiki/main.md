@@ -7,7 +7,7 @@ lang_primary: en
 
 # Wiki home
 
-**LLM Wiki Manager** uses this **`wiki/`** tree as **machine-first LLM context** for the **four related repositories** (Manager, **LLM Wiki Base Model**, **Shaolin Monastery Research System**, **Tai-Pan Wiki**). **Human reader polish is out of scope.** Default paths and env wiring live in [[synthesis/llm-wiki-family-repositories]]. Coordination **`make`** targets (**`make wiki-manager-refresh-dry`**, **`schema/wiki-manager.md`**) only print inventories and fork-delta reports. They do **not** merge **`wiki/`** prose into sibling repos. Policies and machine contracts still live under **`schema/`**. Forks add domain evidence under **`normalized/`** and their own narrative **`wiki/`** outside this checkout.
+**LLM Wiki Manager** uses this **`wiki/`** tree as **machine-first LLM context** for the **four related repositories** (Manager, **LLM Wiki Base Model**, **Shaolin Monastery Research System**, **Tai-Pan Wiki**). **Human reader polish is out of scope.** Default paths and env wiring live in [[synthesis/llm-wiki-family-repositories]]. Coordination **`make`** targets (**`make wiki-manager-refresh-dry`**, **`make wiki-manager-fork-delta-from-base`**, **`make wiki-manager-sync-status`**, **`schema/wiki-manager.md`**) only print inventories, fork-delta bundles, and the **`sync_status.min.json`** rollup. **README.md** documents **GitHub Actions** **`wiki_manager_sync_status.py`** smoke after **`make wiki-test`**. They do **not** merge **`wiki/`** prose into sibling repos. Policies and machine contracts still live under **`schema/`**. Forks add domain evidence under **`normalized/`** and their own narrative **`wiki/`** outside this checkout.
 
 ## See also
 

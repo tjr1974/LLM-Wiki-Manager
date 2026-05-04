@@ -4,7 +4,7 @@ Use this prompt when the task requires **maximum evidence coverage**, not quick 
 
 **LLM Wiki Manager** hosts a **four-repo operator wiki** (see **`wiki/synthesis/llm-wiki-family-repositories.md`**) while this corpus workflow text stays **topic-neutral** so forks can reuse the same steps with their own keywords and sources. Forks supply topic scope, roadmaps, and corpora.
 
-**Manager fork-delta and env paths.** Coordinating sibling checkouts uses **`schema/wiki-manager.md`**, **`make wiki-manager-refresh-dry`**, and **`make wiki-manager-fork-delta-full`** with **`WIKI_MANAGER_*`** exports (**`wiki/synthesis/llm-wiki-family-repositories.md`**). That work is **orthogonal** to Phases A-D below. It never replaces **`make wiki-topic-sources`** for evidence inventory.
+**Manager fork-delta and env paths.** Coordinating sibling checkouts uses **`schema/wiki-manager.md`**, **`make wiki-manager-refresh-dry`**, **`make wiki-manager-fork-delta-from-base`** or **`make wiki-manager-fork-delta-full`**, and **`make wiki-manager-sync-status`** with **`WIKI_MANAGER_*`** exports (**`wiki/synthesis/llm-wiki-family-repositories.md`**). That work is **orthogonal** to Phases A-D below. It never replaces **`make wiki-topic-sources`** for evidence inventory.
 
 **Ingest posture (Karpathy gist).** The gist favors **supervised** ingest (fewer sources per session, review between drops). Corpus passes here can still batch **`scripts/find_sources_for_topic.py`** rankings (**`make wiki-topic-sources`** chains **`wiki-compile`** first). Treat the ranked list as a queue and promote prose deliberately. For **batch automation** versus human-in-the-loop contrast, read **`schema/karpathy-llm-wiki-bridge.md`** (**Memex**, supervised versus batch).
 

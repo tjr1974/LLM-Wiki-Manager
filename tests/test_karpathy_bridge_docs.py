@@ -109,6 +109,7 @@ def test_schema_agents_githooks_bullet_links_pytest_leg_family() -> None:
     assert "karpathy-llm-wiki-bridge.md" in line
     assert "tests/test_githooks_wiring.py" in line
     assert "tests/test_pipeline_step_order.py" in line
+    assert "tests/test_wiki_manager_sync_status.py" in line
     assert "tests/test_make_wiki_all_recipe.py" in line
     assert "tests/test_karpathy_bridge_docs.py" in line
     assert "**Pytest leg**" in line
@@ -118,6 +119,7 @@ def test_karpathy_bridge_mentions_multi_repo_wiki_manager() -> None:
     text = (ROOT / "schema" / "karpathy-llm-wiki-bridge.md").read_text(encoding="utf-8")
     assert "wiki-manager.md" in text
     assert "wiki-manager-list" in text
+    assert "wiki-manager-sync-status-json" in text
     assert "COMPARE=" in text
     assert "## Regression tests" in text
     assert "Canonical development hub" in text
@@ -134,6 +136,8 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "scripts/githooks/README.md" in text
     assert "tests/test_wiki_manager_fork_delta.py" in text
     assert "tests/test_wiki_family_snapshot.py" in text
+    assert "tests/test_wiki_manager_sync_status.py" in text
+    assert "test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci" in text
     assert "tests/test_fork_delta_report.py" in text
     assert "tests/test_make_fork_delta_compare.py" in text
     assert "## Local full gate (Manager)" in text
@@ -307,6 +311,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "Screenshots at repo root" in quickstart
     assert "## Regression tests" in quickstart
     assert "wiki-manager-refresh-dry" in quickstart
+    assert ".github/workflows/ci.yml" in quickstart
+    assert "wiki_manager_sync_status.py" in quickstart
     schema_agents = (ROOT / "schema" / "AGENTS.md").read_text(encoding="utf-8")
     assert "## Regression tests" in schema_agents
     assert "## Local full gate (Manager)" in schema_agents
@@ -319,6 +325,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "karpathy-llm-wiki-bridge.md" in fork_sync
     assert "wiki-manager.md" in fork_sync
     assert "wiki-manager-refresh-dry" in fork_sync
+    assert "sync_status.min.json" in fork_sync
     assert "Regression tests" in fork_sync
     assert "canonical toolchain home" in fork_sync.lower()
     assert "machine-first" in fork_sync.lower()
@@ -372,6 +379,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "canonical development home" in readme.lower()
     assert "llm-wiki-family-repositories.md" in readme
     assert "wiki-manager-refresh-dry" in readme
+    assert ".github/workflows/ci.yml" in readme
+    assert "wiki_manager_sync_status.py" in readme
     assert "machine-first" in readme.lower()
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in readme
     assert "llm_wiki_" in readme
@@ -382,6 +391,7 @@ def test_orientation_docs_remain_linked() -> None:
     main_wiki = (ROOT / "wiki" / "main.md").read_text(encoding="utf-8")
     assert "wiki-log-tail" in main_wiki
     assert "wiki-manager-refresh-dry" in main_wiki
+    assert "wiki_manager_sync_status.py" in main_wiki
     assert "schema/wiki-manager.md" in main_wiki
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in makefile
@@ -432,9 +442,13 @@ def test_orientation_docs_remain_linked() -> None:
     assert "config.yml" in ci_yml
     assert "wiki-manager-list" in ci_yml
     assert "wiki-manager-snapshot" in ci_yml
+    assert "wiki-manager-sync-status" in ci_yml
     assert "wiki-manager-refresh-dry" in ci_yml
+    assert "wiki_manager_sync_status.py" in ci_yml
+    assert "Wiki manager sync rollup script smoke" in ci_yml
     assert "test_wiki_manager_fork_delta.py" in ci_yml
     assert "test_wiki_family_snapshot.py" in ci_yml
+    assert "test_wiki_manager_sync_status.py" in ci_yml
     assert "test_fork_delta_report.py" in ci_yml
     assert "test_make_fork_delta_compare.py" in ci_yml
     pr_tpl = (ROOT / ".github/pull_request_template.md").read_text(encoding="utf-8")
@@ -460,9 +474,14 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-manager-snapshot" in pr_tpl
     assert "wiki_manager_fork_delta.py" in pr_tpl
     assert "wiki_family_snapshot.py" in pr_tpl
+    assert "wiki_manager_sync_status.py" in pr_tpl
     assert "fork_delta_report.py" in pr_tpl
+    assert "wiki-manager-sync-status-json" in pr_tpl
     assert "tests/test_wiki_manager_fork_delta.py" in pr_tpl
     assert "tests/test_wiki_family_snapshot.py" in pr_tpl
+    assert "tests/test_wiki_manager_sync_status.py" in pr_tpl
+    assert "tests/test_pipeline_step_order.py" in pr_tpl
+    assert "tests/test_karpathy_bridge_docs.py" in pr_tpl
     assert "tests/test_fork_delta_report.py" in pr_tpl
     assert "tests/test_make_fork_delta_compare.py" in pr_tpl
     assert "Pytest map:" in pr_tpl
@@ -490,15 +509,16 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_karpathy_bridge_docs.py" in hook_tail
     assert issue_tpl.count("proposed/README.md") >= 2
     parity = issue_tpl.split("**Pytest and CI parity**", 1)[1]
-    assert "tests/test_pipeline_step_order.py" in parity[:1200]
-    assert "tests/test_make_wiki_all_recipe.py" in parity[:1200]
-    assert "tests/test_karpathy_bridge_docs.py" in parity[:1200]
-    assert "tests/test_githooks_wiring.py" in parity[:1200]
+    parity_head = parity[:1800]
+    assert "tests/test_pipeline_step_order.py" in parity_head
+    assert "tests/test_wiki_manager_sync_status.py" in parity_head
+    assert "tests/test_make_wiki_all_recipe.py" in parity_head
+    assert "tests/test_karpathy_bridge_docs.py" in parity_head
+    assert "tests/test_githooks_wiring.py" in parity_head
     assert "**`schema/AGENTS.md`** (githooks bullet)" in issue_tpl
     assert "scripts/githooks/README.md" in issue_tpl
     assert "test_makefile_help_wiki_test_echo_warns_no_extra_make_goals" in issue_tpl
     assert "test_githooks_readme_documents_modes" in issue_tpl
-    assert "tests/test_githooks_wiring.py" in issue_tpl.split("**Pytest and CI parity**")[1][:900]
     assert "wiki-log-tail" in issue_tpl
     assert "make wiki-hub" in issue_tpl
     assert "hub-index.md" in issue_tpl
@@ -626,6 +646,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "tests/test_pipeline_step_order.py" in a
     assert "tests/test_make_wiki_all_recipe.py" in a
     assert "tests/test_karpathy_bridge_docs.py" in a
+    assert "tests/test_wiki_manager_sync_status.py" in a
     assert "tests/test_githooks_wiring.py" in a
     assert "scripts/githooks/README.md" in a
     assert "human-wiki-automation-boundary.md" in a

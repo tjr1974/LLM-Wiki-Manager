@@ -327,7 +327,21 @@ def test_makefile_help_echoes_wiki_manager_targets() -> None:
     assert "wiki-manager-base-vs-manager-full" in echoed
     assert "wiki-manager-snapshot-json" in echoed
     assert "wiki-manager-refresh-dry" in echoed
+    assert "wiki-manager-sync-status" in echoed
+    assert "wiki-manager-fork-delta-from-base" in echoed
+    assert "wiki-manager-report-from-base" in echoed
     assert "COMPARE=" in echoed
+
+
+def test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci() -> None:
+    """Default Actions workflow keeps rollup smoke between pytest restore and wiki-ci."""
+    text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "Wiki manager sync rollup script smoke" in text
+    assert "wiki_manager_sync_status.py --json" in text
+    a = text.index("- name: Run unit tests (make wiki-test)")
+    b = text.index("- name: Wiki manager sync rollup script smoke")
+    c = text.index("- name: Run wiki CI gates")
+    assert a < b < c, "expected wiki-test, then sync-status smoke, then wiki-ci"
 
 
 def test_makefile_help_echoes_autopilot_ci_parity_hint() -> None:

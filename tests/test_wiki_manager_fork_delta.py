@@ -149,6 +149,41 @@ def test_wiki_manager_full_require_all_fails_when_env_unset(tmp_path: Path, monk
     assert r.returncode == 2
 
 
+def test_wiki_manager_full_require_base_compare_fails_when_compare_root_defaults_to_manager(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reg = {
+        "v": 1,
+        "managed_children": [
+            {"id": "c", "label": "C", "path_env": "WIKI_MANAGER_TEST_CHILD_C"},
+        ],
+    }
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(json.dumps(reg), encoding="utf-8")
+    child = tmp_path / "child-wiki"
+    child.mkdir()
+    monkeypatch.setenv("WIKI_MANAGER_TEST_CHILD_C", str(child))
+    monkeypatch.delenv("WIKI_MANAGER_COMPARE_ROOT", raising=False)
+
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "wiki_manager_fork_delta.py"),
+            "--repo-root",
+            str(ROOT),
+            "--registry",
+            str(reg_path),
+            "full",
+            "--dry-run",
+            "--require-base-compare",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 2, r.stderr + r.stdout
+    assert "require-base-compare" in (r.stdout + r.stderr).lower()
+
+
 def test_wiki_manager_rejects_unsupported_registry_version(tmp_path: Path) -> None:
     reg_path = tmp_path / "registry.json"
     reg_path.write_text(json.dumps({"v": 2, "managed_children": []}), encoding="utf-8")

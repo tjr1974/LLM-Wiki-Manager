@@ -2,7 +2,7 @@
 #
 # Forks may set VALIDATE_WIKI_ARGS='--strict-citation-meta' for Makefile wiki-validate wiki-check wiki-ci targets (or export before autopilot or daemon).
 # Filing (optional): .github/ISSUE_TEMPLATE/wiki-toolchain.md for suspected CI or Makefile drift (README Pre-push). .github/ISSUE_TEMPLATE/config.yml allows blank GitHub issues.
-# wiki-test: never run "make wiki-test -q" (-q is a bogus make goal). README Pre-push, Assistant preamble table, schema/wiki-quickstart.md Pytest and CI, schema/karpathy-llm-wiki-bridge.md Pytest leg, proposed/README.md, schema/AGENTS.md githooks bullet, scripts/githooks/README.md, make help, tests/test_githooks_wiring.py tests/test_pipeline_step_order.py tests/test_make_wiki_all_recipe.py tests/test_karpathy_bridge_docs.py tests/test_wiki_manager_fork_delta.py tests/test_wiki_family_snapshot.py.
+# wiki-test: never run "make wiki-test -q" (-q is a bogus make goal). README Pre-push, Assistant preamble table, schema/wiki-quickstart.md Pytest and CI, schema/karpathy-llm-wiki-bridge.md Pytest leg, proposed/README.md, schema/AGENTS.md githooks bullet, scripts/githooks/README.md, make help, tests/test_githooks_wiring.py tests/test_pipeline_step_order.py (including test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci) tests/test_make_wiki_all_recipe.py tests/test_karpathy_bridge_docs.py tests/test_wiki_manager_fork_delta.py tests/test_wiki_family_snapshot.py tests/test_wiki_manager_sync_status.py.
 
 VALIDATE_WIKI_ARGS ?=
 # Space-separated keywords passed to query_helper (example: make wiki-query Q='example entity').
@@ -14,7 +14,7 @@ COMPARE ?=
 # Extra args for wiki-manager-* (example: WIKI_MANAGER_ARGS='--child tai-pan-wiki --dry-run').
 WIKI_MANAGER_ARGS ?=
 
-.PHONY: help wiki-compile wiki-validate wiki-lint wiki-text wiki-analyze wiki-query wiki-log-tail wiki-queue-health wiki-hub wiki-topic-sources wiki-topic-sources-no-compile wiki-discovery wiki-discovery-rebuild wiki-coverage wiki-sync-nav wiki-sync-nav-all wiki-fix-citations-dry wiki-fix-citations wiki-admissibility-smoke wiki-a11y wiki-perf wiki-wiki-rel wiki-release-manifest wiki-quality-gate wiki-static-export-check fork-delta fork-delta-scan fork-delta-shortlist fork-delta-remediation fork-delta-portability-audit fork-delta-next-batch fork-delta-backlog fork-delta-status fork-delta-verify fork-delta-full wiki-manager-list wiki-manager-report wiki-manager-fork-delta-full wiki-manager-snapshot wiki-manager-snapshot-json wiki-manager-base-vs-manager-report wiki-manager-base-vs-manager-full wiki-manager-refresh-dry _wiki-md-core-gates wiki-check wiki-ci wiki-all wiki-restore-runtime wiki-test
+.PHONY: help wiki-compile wiki-validate wiki-lint wiki-text wiki-analyze wiki-query wiki-log-tail wiki-queue-health wiki-hub wiki-topic-sources wiki-topic-sources-no-compile wiki-discovery wiki-discovery-rebuild wiki-coverage wiki-sync-nav wiki-sync-nav-all wiki-fix-citations-dry wiki-fix-citations wiki-admissibility-smoke wiki-a11y wiki-perf wiki-wiki-rel wiki-release-manifest wiki-quality-gate wiki-static-export-check fork-delta fork-delta-scan fork-delta-shortlist fork-delta-remediation fork-delta-portability-audit fork-delta-next-batch fork-delta-backlog fork-delta-status fork-delta-verify fork-delta-full wiki-manager-list wiki-manager-report wiki-manager-report-from-base wiki-manager-fork-delta-full wiki-manager-fork-delta-from-base wiki-manager-snapshot wiki-manager-snapshot-json wiki-manager-sync-status wiki-manager-sync-status-json wiki-manager-base-vs-manager-report wiki-manager-base-vs-manager-full wiki-manager-refresh-dry _wiki-md-core-gates wiki-check wiki-ci wiki-all wiki-restore-runtime wiki-test
 
 help:
 	@echo "make wiki-compile   # wiki_compiler.py + dedupe_runtime.py"
@@ -62,7 +62,11 @@ help:
 	@echo "make fork-delta-full CHILD='/abs/path/to/child'  # optional COMPARE=… then report+scan+shortlist+remediation+summary"
 	@echo "make wiki-manager-list  # resolved child paths from ai/schema/wiki_manager_registry.v1.json + env"
 	@echo 'make wiki-manager-report WIKI_MANAGER_ARGS="--child tai-pan-wiki"  # fork_delta_report only per child'
+	@echo 'make wiki-manager-report-from-base WIKI_MANAGER_ARGS="..."  # same as report but requires WIKI_MANAGER_COMPARE_ROOT (Base Model left side)'
 	@echo 'make wiki-manager-fork-delta-full WIKI_MANAGER_ARGS="--dry-run"  # per-child bundles under ai/runtime/manager/<id>/'
+	@echo 'make wiki-manager-fork-delta-from-base WIKI_MANAGER_ARGS="..."  # full pipeline; fails fast unless Base Model compare root is set'
+	@echo "make wiki-manager-sync-status  # family snapshot + per-child fork_delta metrics -> ai/runtime/manager/sync_status.min.json"
+	@echo "make wiki-manager-sync-status-json  # same with JSON on stdout"
 	@echo "make wiki-manager-snapshot  # paths + optional git HEAD/dirty counts (python3 scripts/wiki_family_snapshot.py)"
 	@echo "make wiki-manager-snapshot-json  # same as wiki-manager-snapshot with --json on stdout"
 	@echo "make wiki-manager-base-vs-manager-report  # Base Model vs Manager fork_delta_report (needs WIKI_MANAGER_COMPARE_ROOT)"
@@ -144,8 +148,20 @@ wiki-manager-list:
 wiki-manager-report:
 	python3 scripts/wiki_manager_fork_delta.py report $(WIKI_MANAGER_ARGS)
 
+wiki-manager-report-from-base:
+	python3 scripts/wiki_manager_fork_delta.py report --require-base-compare $(WIKI_MANAGER_ARGS)
+
 wiki-manager-fork-delta-full:
 	python3 scripts/wiki_manager_fork_delta.py full $(WIKI_MANAGER_ARGS)
+
+wiki-manager-fork-delta-from-base:
+	python3 scripts/wiki_manager_fork_delta.py full --require-base-compare $(WIKI_MANAGER_ARGS)
+
+wiki-manager-sync-status:
+	python3 scripts/wiki_manager_sync_status.py
+
+wiki-manager-sync-status-json:
+	python3 scripts/wiki_manager_sync_status.py --json
 
 wiki-manager-snapshot:
 	python3 scripts/wiki_family_snapshot.py

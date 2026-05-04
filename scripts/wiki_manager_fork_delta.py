@@ -105,6 +105,23 @@ def _compare_root(registry: dict, manager_root: Path) -> Path:
     return manager_root.resolve()
 
 
+def _require_distinct_base_compare(registry: dict, manager_root: Path) -> None:
+    """Exit **2** unless compare_root differs from manager (Base Model left side for child diffs)."""
+    cr = _compare_root(registry, manager_root)
+    mr = manager_root.resolve()
+    if cr.resolve() != mr.resolve():
+        return
+    env_key = registry.get("compare_root_env", "WIKI_MANAGER_COMPARE_ROOT")
+    if not isinstance(env_key, str) or not env_key.strip():
+        env_key = "WIKI_MANAGER_COMPARE_ROOT"
+    print(
+        f"--require-base-compare: set {env_key} to your LLM Wiki Base Model checkout "
+        f"(must be a directory different from this manager tree at {mr}).",
+        file=sys.stderr,
+    )
+    raise SystemExit(2)
+
+
 def _managed_children(registry: dict) -> list[dict]:
     rows = registry.get("managed_children")
     if not isinstance(rows, list):
@@ -403,7 +420,10 @@ def cmd_full(
     child_filter: str | None,
     require_all: bool,
     dry_run: bool,
+    require_base_compare: bool,
 ) -> int:
+    if require_base_compare:
+        _require_distinct_base_compare(registry, manager_root)
     return _for_each_resolved_child(
         manager_root,
         registry,
@@ -422,7 +442,10 @@ def cmd_report(
     child_filter: str | None,
     require_all: bool,
     dry_run: bool,
+    require_base_compare: bool,
 ) -> int:
+    if require_base_compare:
+        _require_distinct_base_compare(registry, manager_root)
     return _for_each_resolved_child(
         manager_root,
         registry,
@@ -488,6 +511,14 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Exit 2 if any registered child path is unset or missing.",
     )
+    p_full.add_argument(
+        "--require-base-compare",
+        action="store_true",
+        help=(
+            "Exit 2 unless compare_root (WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
+            "(diff left side must not be this manager checkout). Use for parent-to-child drift bundles."
+        ),
+    )
     p_full.add_argument("--dry-run", action="store_true", help="Print which children would run without executing.")
     p_report = sub.add_parser(
         "report",
@@ -499,6 +530,14 @@ def _parse_args() -> argparse.Namespace:
         "--require-all",
         action="store_true",
         help="Exit 2 if any registered child path is unset or missing.",
+    )
+    p_report.add_argument(
+        "--require-base-compare",
+        action="store_true",
+        help=(
+            "Exit 2 unless compare_root (WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
+            "(diff left side must not be this manager checkout)."
+        ),
     )
     p_report.add_argument("--dry-run", action="store_true", help="Print which children would run without executing.")
     p_bvm_r = sub.add_parser(
@@ -542,6 +581,7 @@ def main() -> int:
             child_filter=filt,
             require_all=bool(args.require_all),
             dry_run=bool(args.dry_run),
+            require_base_compare=bool(getattr(args, "require_base_compare", False)),
         )
     if args.handler == "report":
         filt = str(args.child).strip() or None
@@ -551,6 +591,7 @@ def main() -> int:
             child_filter=filt,
             require_all=bool(args.require_all),
             dry_run=bool(args.dry_run),
+            require_base_compare=bool(getattr(args, "require_base_compare", False)),
         )
     if args.handler == "base-vs-manager-report":
         return cmd_base_vs_manager_report(manager_root, registry)

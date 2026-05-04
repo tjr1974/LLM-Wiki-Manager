@@ -37,6 +37,11 @@ def _load_registry(manager_root: Path, registry_rel: str) -> dict:
     return raw
 
 
+def load_wiki_manager_registry(manager_root: Path, registry_rel: str = DEFAULT_REGISTRY_REL) -> dict:
+    """Load **ai/schema/wiki_manager_registry.v1.json** (or a test registry path). Shared with sibling manager scripts."""
+    return _load_registry(manager_root, registry_rel)
+
+
 def _compare_root_env_key(registry: dict) -> str:
     k = registry.get("compare_root_env", "WIKI_MANAGER_COMPARE_ROOT")
     if not isinstance(k, str) or not k.strip():
@@ -226,7 +231,7 @@ def main() -> int:
     ap.add_argument("--json", action="store_true", help="Emit one JSON object on stdout.")
     args = ap.parse_args()
     manager_root = resolve_repo_root(args.repo_root)
-    registry = _load_registry(manager_root, args.registry)
+    registry = load_wiki_manager_registry(manager_root, args.registry)
     snap = build_snapshot(manager_root, registry)
     if args.json:
         print(json.dumps(snap, ensure_ascii=False, indent=2))

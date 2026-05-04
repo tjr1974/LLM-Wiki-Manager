@@ -47,6 +47,7 @@ def test_githooks_readme_documents_modes() -> None:
     assert "Multi-repo coordination" in text
     assert "then **`wiki-restore-runtime`** again" in text
     assert "wiki-manager-refresh-dry" in text
+    assert "wiki-manager-sync-status" in text
     assert "schema/wiki-manager.md" in text
     assert "tests/test_make_wiki_all_recipe.py" in text
     assert "pre-push" in text.lower()

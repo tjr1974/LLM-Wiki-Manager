@@ -42,4 +42,4 @@ WIKI_PRE_PUSH=off git push
 
 ## Multi-repo coordination (optional, not in the hook)
 
-**LLM Wiki Manager** can register sibling checkouts via **`WIKI_MANAGER_*`** env vars (**`schema/wiki-manager.md`**). Run **`make wiki-manager-refresh-dry`** or **`make wiki-manager-snapshot`** manually when you want path inventory and dry-run fork-delta steps before a push. Those targets do **not** run inside **`pre-push`** by default.
+**LLM Wiki Manager** can register sibling checkouts via **`WIKI_MANAGER_*`** env vars (**`schema/wiki-manager.md`**). Run **`make wiki-manager-refresh-dry`**, **`make wiki-manager-snapshot`**, or **`make wiki-manager-sync-status`** manually when you want path inventory, a **`sync_status.min.json`** rollup, or dry-run fork-delta steps before a push. Those targets do **not** run inside **`pre-push`** by default.
