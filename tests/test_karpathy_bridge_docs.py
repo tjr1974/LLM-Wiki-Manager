@@ -643,6 +643,8 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "proposed/README.md" in a
     assert "**Pytest leg**" in a
     assert "**`schema/AGENTS.md`** (githooks bullet)" in a
+    assert "tests/conftest.py" in a
+    assert "tests/test_makeflags_inheritance.py" in a
     assert "tests/test_pipeline_step_order.py" in a
     assert "tests/test_make_wiki_all_recipe.py" in a
     assert "tests/test_karpathy_bridge_docs.py" in a
@@ -665,6 +667,8 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "proposed/README.md" in p
     assert "**Pytest leg**" in p
     assert "**`schema/AGENTS.md`** (githooks bullet)" in p
+    assert "tests/conftest.py" in p
+    assert "tests/test_makeflags_inheritance.py" in p
     assert "test_makefile_help_wiki_test_echo_warns_no_extra_make_goals" in p
     assert "test_makefile_wiki_all_chains_wiki_test_before_ci" in p
     assert "test_readme_pre_push_links_toolchain_issue_template" in p
