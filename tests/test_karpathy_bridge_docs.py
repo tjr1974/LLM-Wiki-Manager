@@ -702,9 +702,11 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "test_makefile_wiki_all_chains_wiki_test_before_ci" in p
     assert "test_readme_pre_push_links_toolchain_issue_template" in p
     assert "test_githooks_readme_documents_modes" in p
-    opt = p[p.index("Optional pre-push hooks") : p.index("Optional pre-push hooks") + 950]
+    opt = p[p.index("Optional pre-push hooks") : p.index("Optional pre-push hooks") + 1150]
     assert "make help" in opt
     assert "tests/test_pipeline_step_order.py" in opt
+    assert "tests/conftest.py" in opt
+    assert "tests/test_makeflags_inheritance.py" in opt
     assert "tests/test_make_wiki_all_recipe.py" in opt
     assert "tests/test_karpathy_bridge_docs.py" in opt
     assert "scripts/githooks/README.md" in p
