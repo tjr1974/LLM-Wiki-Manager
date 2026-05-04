@@ -220,7 +220,9 @@ def test_makefile_help_wiki_test_echo_warns_no_extra_make_goals() -> None:
         and "wiki-test" in ln
         and "make wiki-test -q" in ln
         and "README Pre-push" in ln
+        and "tests/conftest.py" in ln
         and "tests/test_githooks_wiring.py" in ln
+        and "tests/test_makeflags_inheritance.py" in ln
         and "tests/test_pipeline_step_order.py" in ln
         and "tests/test_make_wiki_all_recipe.py" in ln
     ]
