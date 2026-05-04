@@ -17,7 +17,7 @@ from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
-from wiki_family_snapshot import build_snapshot, load_wiki_manager_registry  # noqa: E402
+from wiki_family_snapshot import build_snapshot, compare_root_env_key, load_wiki_manager_registry  # noqa: E402
 from wiki_paths import resolve_repo_root, utc_now_iso  # noqa: E402
 
 DEFAULT_OUT_REL = "ai/runtime/manager/sync_status.min.json"
@@ -70,6 +70,7 @@ def build_sync_status(manager_root: Path, registry_rel: str) -> dict:
     snap = build_snapshot(manager_root, registry)
     mr = manager_root.resolve()
     warnings: list[str] = []
+    compare_env = compare_root_env_key(registry)
 
     base_path: str | None = None
     for r in snap.get("repos", []):
@@ -80,7 +81,7 @@ def build_sync_status(manager_root: Path, registry_rel: str) -> dict:
     if base_path is None:
         drift_mode = "manager-vs-child"
         warnings.append(
-            "WIKI_MANAGER_COMPARE_ROOT unset or invalid: fork-delta left side defaults to this "
+            f"{compare_env} unset or invalid: fork-delta left side defaults to this "
             "manager checkout (not LLM Wiki Base Model). Export compare root before measuring "
             "parent-to-child tooling drift."
         )

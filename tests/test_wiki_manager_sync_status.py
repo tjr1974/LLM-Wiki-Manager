@@ -56,6 +56,36 @@ def test_wiki_manager_sync_status_json_shape(tmp_path: Path, monkeypatch: pytest
     assert kids[0].get("fork_delta_report") is None
 
 
+def test_wiki_manager_sync_status_warning_uses_registry_compare_root_env(tmp_path: Path) -> None:
+    """Drift warnings must name the registry's compare_root_env, not a hardcoded default."""
+    reg = {
+        "v": 1,
+        "compare_root_env": "MY_ITEST_COMPARE_ROOT",
+        "managed_children": [],
+    }
+    (tmp_path / "registry.json").write_text(json.dumps(reg), encoding="utf-8")
+    out_rel = "sync_warn.json"
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "wiki_manager_sync_status.py"),
+            "--repo-root",
+            str(tmp_path),
+            "--registry",
+            "registry.json",
+            "--out",
+            out_rel,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0, r.stderr + r.stdout
+    data = json.loads((tmp_path / out_rel).read_text(encoding="utf-8"))
+    warns = data.get("drift_warnings") or []
+    assert any("MY_ITEST_COMPARE_ROOT unset or invalid" in w for w in warns)
+    assert not any("WIKI_MANAGER_COMPARE_ROOT unset or invalid" in w for w in warns)
+
+
 def test_wiki_manager_sync_status_digests_report_when_present(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     mgr = tmp_path / "mgr"
     mgr.mkdir()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -8,6 +9,15 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_wiki_family_snapshot():
+    path = ROOT / "scripts" / "wiki_family_snapshot.py"
+    spec = importlib.util.spec_from_file_location("wiki_family_snapshot_under_test", path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 @pytest.fixture(autouse=True)
@@ -45,6 +55,14 @@ def test_make_wiki_manager_snapshot_json_runs() -> None:
     data = json.loads(combined[start:end])
     assert data.get("v") == 1
     assert data.get("manager_root") == str(ROOT.resolve())
+
+
+def test_compare_root_env_key_defaults_and_registry_override() -> None:
+    mod = _load_wiki_family_snapshot()
+    assert mod.compare_root_env_key({"v": 1}) == "WIKI_MANAGER_COMPARE_ROOT"
+    assert mod.compare_root_env_key({"v": 1, "compare_root_env": "MY_BASE"}) == "MY_BASE"
+    assert mod.compare_root_env_key({"v": 1, "compare_root_env": "  "}) == "WIKI_MANAGER_COMPARE_ROOT"
+    assert mod.compare_root_env_key({"v": 1, "compare_root_env": 99}) == "WIKI_MANAGER_COMPARE_ROOT"
 
 
 def test_wiki_family_snapshot_text_includes_manager_root() -> None:

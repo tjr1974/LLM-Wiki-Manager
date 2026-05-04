@@ -221,6 +221,8 @@ def test_makefile_help_wiki_test_echo_warns_no_extra_make_goals() -> None:
         and "make wiki-test -q" in ln
         and "README Pre-push" in ln
         and "tests/conftest.py" in ln
+        and "tests/_resolved_python.py" in ln
+        and "tests/test_build_hub_links.py" in ln
         and "tests/test_githooks_wiring.py" in ln
         and "tests/test_makeflags_inheritance.py" in ln
         and "tests/test_pipeline_step_order.py" in ln
@@ -299,6 +301,8 @@ def test_makefile_header_comments_mention_issue_templates() -> None:
     assert "tests/test_pipeline_step_order.py" in head
     assert "tests/test_make_wiki_all_recipe.py" in head
     assert "tests/test_karpathy_bridge_docs.py" in head
+    assert "tests/_resolved_python.py" in head
+    assert "tests/test_build_hub_links.py" in head
     assert "tests/test_wiki_manager_fork_delta.py" in head
     assert "tests/test_wiki_family_snapshot.py" in head
 

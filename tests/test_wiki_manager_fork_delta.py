@@ -436,6 +436,34 @@ def test_base_vs_manager_full_dry_run_skips_when_compare_root_not_set(monkeypatc
     assert "skip base-vs-manager-full" in (r.stdout + r.stderr).lower()
 
 
+def test_base_vs_manager_full_dry_run_skip_message_uses_registry_compare_root_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reg = {"v": 1, "compare_root_env": "MY_BVM_COMPARE_ENV", "managed_children": []}
+    reg_path = tmp_path / "reg.json"
+    reg_path.write_text(json.dumps(reg), encoding="utf-8")
+    monkeypatch.delenv("MY_BVM_COMPARE_ENV", raising=False)
+    monkeypatch.delenv("WIKI_MANAGER_COMPARE_ROOT", raising=False)
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "wiki_manager_fork_delta.py"),
+            "--repo-root",
+            str(ROOT),
+            "--registry",
+            str(reg_path),
+            "base-vs-manager-full",
+            "--dry-run",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0, r.stderr + r.stdout
+    combined = r.stdout + r.stderr
+    assert "skip base-vs-manager-full" in combined.lower()
+    assert "MY_BVM_COMPARE_ENV is unset" in combined
+
+
 def test_make_wiki_manager_refresh_dry_runs() -> None:
     r = subprocess.run(["make", "-C", str(ROOT), "wiki-manager-refresh-dry"], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr + r.stdout

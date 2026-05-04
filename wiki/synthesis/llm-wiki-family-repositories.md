@@ -17,7 +17,7 @@ notes: "Authoritative maintainer map for the four related LLM Wiki checkouts on 
 | Repository | Role | Default absolute path |
 |------------|------|------------------------|
 | **LLM Wiki Manager** | Canonical development hub, coordination, fork-delta policy owner, this **`wiki/`** | `/home/admn/Downloads/LLM Wiki Manager` |
-| **LLM Wiki Base Model** | Neutral sibling template, **`COMPARE=`** / **`WIKI_MANAGER_COMPARE_ROOT`** diff left side, cherry-pick target for shared tooling | `/home/admn/Downloads/LLM Wiki Base Model` |
+| **LLM Wiki Base Model** | Neutral sibling template (**`COMPARE=`** at **`make`** time or manager compare-root env, default **`WIKI_MANAGER_COMPARE_ROOT`**, registry **`compare_root_env`**) diff left side, cherry-pick target for shared tooling | `/home/admn/Downloads/LLM Wiki Base Model` |
 | **Shaolin Monastery Research System** | Domain child wiki (registered in **`ai/schema/wiki_manager_registry.v1.json`**) | `/home/admn/Downloads/Shaolin Monastery Research System` |
 | **Tai-Pan Wiki** | Domain child wiki (registered in **`ai/schema/wiki_manager_registry.v1.json`**) | `/home/admn/Downloads/Tai-Pan Wiki` |
 
@@ -34,7 +34,7 @@ On a **Manager** checkout, keep **`origin`** → Manager and add **`base-model`*
 
 | Variable or command | Operator note |
 |---------------------|----------------|
-| **`WIKI_MANAGER_COMPARE_ROOT`** | Point at **LLM Wiki Base Model** when fork-delta should diff that tree against each child while policy JSON stays in **Manager**. |
+| **`WIKI_MANAGER_COMPARE_ROOT`** | Default env name for the Base Model checkout path. Registry **`compare_root_env`** can rename this variable. Point at **LLM Wiki Base Model** when fork-delta should diff that tree against each child while policy JSON stays in **Manager**. |
 | **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** | Point at the two domain checkouts. See **`.env.example`** and **`schema/wiki-manager.md`**. |
 | **`make fork-delta CHILD='…' COMPARE='…'`** | Same compare semantics without the registry (single child). |
 | **GitHub Actions (default `ci` workflow)** | After **`make wiki-test`**, runs **`python3 scripts/wiki_manager_sync_status.py --json`** pipe smoke (**`.github/workflows/ci.yml`**). Full fork-delta bundles stay local (needs **`WIKI_MANAGER_*`** paths). |
@@ -54,14 +54,14 @@ Scripts do **not** merge **`wiki/`** prose into children unattended. Use **Manag
 | Step | Command or action |
 |------|-------------------|
 | 0 | Optional smoke without writing fork-delta artifacts: **`make wiki-manager-refresh-dry`**. |
-| 1 | Export **`WIKI_MANAGER_COMPARE_ROOT`**, **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** (see **`.env.example`**). |
+| 1 | Export **`WIKI_MANAGER_COMPARE_ROOT`**, **`WIKI_MANAGER_CHILD_SHAOLIN`**, **`WIKI_MANAGER_CHILD_TAI_PAN`** (see **`.env.example`** and registry **`compare_root_env`** if you use a custom Base Model env name). |
 | 2 | **`make wiki-manager-snapshot`** or **`make wiki-manager-snapshot-json`** to confirm paths and Git dirty state. |
 | 3 | **`make wiki-manager-base-vs-manager-report`** then inspect **`ai/runtime/manager/base-vs-manager/fork_delta_report.min.json`** for shared files that moved in **Base Model** but not yet in **Manager**. Port neutral changes into **Manager** first. |
-| 4 | Prefer **`make wiki-manager-fork-delta-from-base`** (same as **`wiki-manager-fork-delta-full`** but **fails fast** if **`WIKI_MANAGER_COMPARE_ROOT`** is unset or points at this manager tree). Each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
+| 4 | Prefer **`make wiki-manager-fork-delta-from-base`** (same as **`wiki-manager-fork-delta-full`** but **fails fast** if the compare-root env (registry **`compare_root_env`**, default **`WIKI_MANAGER_COMPARE_ROOT`**) is unset or points at this manager tree). Each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
 | 4b | **`make wiki-manager-sync-status`** (after step 4 or **`make wiki-manager-report-from-base`**) writes **`ai/runtime/manager/sync_status.min.json`**: one JSON rollup of Git heads, dirty counts, **`drift_compare_mode`**, and per-child **`fork_delta_report`** counts. |
 | 5 | In each child repo run **`make wiki-all`** (or their documented merge gate) after ports. |
 
-**LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates. Pytest shell-outs to nested **`make`** inherit GNU make **`MAKEFLAGS`** unless **`tests/conftest.py`** clears it (**`schema/karpathy-llm-wiki-bridge.md`** **Pytest leg**, **`tests/test_makeflags_inheritance.py`**).
+**LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates. Pytest shell-outs to nested **`make`** inherit GNU make **`MAKEFLAGS`** unless **`tests/conftest.py`** clears it (**`schema/karpathy-llm-wiki-bridge.md`** **Pytest leg**, **`tests/test_makeflags_inheritance.py`**). Pytest subprocesses that set **`cwd`** to a fixture tree outside the checkout should pass **`tests/_resolved_python.py`** **`RESOLVED_PYTHON`** when **`sys.executable`** might be relative (**`schema/AGENTS.md`** **Pytest subprocess hygiene**, **`tests/test_build_hub_links.py`**, plus the note in that section that **`tests/conftest.py`** and **`tests/_resolved_python.py`** module docstrings cross-link **`MAKEFLAGS`** and **`RESOLVED_PYTHON`**).
 
 ## See also
 

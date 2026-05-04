@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Machine-readable inventory of the four-repo LLM Wiki family on this host.
 
-Resolves **LLM Wiki Manager** root, optional **WIKI_MANAGER_COMPARE_ROOT** (Base
-Model), and registered child paths from **ai/schema/wiki_manager_registry.v1.json**.
+Resolves **LLM Wiki Manager** root, optional Base Model checkout (env var named by
+registry **compare_root_env**, default **WIKI_MANAGER_COMPARE_ROOT**), and
+registered child paths from **ai/schema/wiki_manager_registry.v1.json**.
 For each directory that exists, records whether it is a Git checkout, short
 **HEAD**, and a dirty file count (**git status --porcelain**).
 
@@ -47,6 +48,11 @@ def _compare_root_env_key(registry: dict) -> str:
     if not isinstance(k, str) or not k.strip():
         return "WIKI_MANAGER_COMPARE_ROOT"
     return k
+
+
+def compare_root_env_key(registry: dict) -> str:
+    """Env var for the Base Model checkout path (``compare_root_env`` in registry, else default)."""
+    return _compare_root_env_key(registry)
 
 
 def _compare_root_path(registry: dict, manager_root: Path) -> Path | None:

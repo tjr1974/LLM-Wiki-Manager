@@ -31,6 +31,8 @@ def test_readme_documents_preamble_table_and_githooks() -> None:
     assert "schema/AGENTS.md" in chunk
     assert "tests/test_karpathy_bridge_docs.py" in chunk
     assert "tests/conftest.py" in chunk
+    assert "tests/_resolved_python.py" in chunk
+    assert "tests/test_build_hub_links.py" in chunk
     assert "tests/test_makeflags_inheritance.py" in chunk
     assert "tests/test_githooks_wiring.py" in chunk
     assert "scripts/githooks" in text
@@ -51,8 +53,14 @@ def test_githooks_readme_documents_modes() -> None:
     assert "wiki-manager-refresh-dry" in text
     assert "wiki-manager-sync-status" in text
     assert "schema/wiki-manager.md" in text
+    assert "compare_root_env" in text
     assert "tests/test_make_wiki_all_recipe.py" in text
     assert "tests/conftest.py" in text
+    assert "tests/_resolved_python.py" in text
+    assert "tests/test_build_hub_links.py" in text
+    assert "RESOLVED_PYTHON" in text
+    assert "Pytest subprocess hygiene" in text
+    assert "module docstrings cross-link" in text
     assert "tests/test_makeflags_inheritance.py" in text
     assert "pre-push" in text.lower()
 
@@ -84,3 +92,5 @@ def test_schema_agents_documents_optional_githooks_bullet() -> None:
     assert "tests/test_makeflags_inheritance.py" in text
     assert "tests/test_make_wiki_all_recipe.py" in text
     assert "tests/test_karpathy_bridge_docs.py" in text
+    assert "tests/_resolved_python.py" in text
+    assert "tests/test_build_hub_links.py" in text

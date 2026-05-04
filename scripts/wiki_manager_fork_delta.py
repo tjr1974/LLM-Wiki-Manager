@@ -5,14 +5,14 @@ Writes per-child bundles under ``ai/runtime/manager/<child-id>/`` so multiple
 children can be analyzed without clobbering the default
 ``ai/runtime/fork_delta_*.min.json`` paths used by ``make fork-delta-full``.
 
-Upstream (diff left side) defaults to this checkout. Set
-``WIKI_MANAGER_COMPARE_ROOT`` to a sibling **LLM Wiki Base Model** tree when
-this manager repo should compare that canonical upstream against each child
-while keeping policy and outputs in the manager checkout.
+Upstream (diff left side) defaults to this checkout. Export the Base Model path
+using the env var named in registry **compare_root_env** (default
+``WIKI_MANAGER_COMPARE_ROOT``) when this manager should compare that canonical
+upstream against each child while keeping policy and outputs in the manager checkout.
 
 See **schema/karpathy-llm-wiki-bridge.md** and **schema/wiki-manager.md**.
 Subcommands **base-vs-manager-report** and **base-vs-manager-full** diff **LLM Wiki Base Model**
-(**WIKI_MANAGER_COMPARE_ROOT**) against **this** checkout. **## Regression tests** in
+(compare_root from that env) against **this** checkout. **## Regression tests** in
 **schema/wiki-manager.md** lists pytest files for this CLI and registry wiring.
 """
 
@@ -29,24 +29,32 @@ from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
+from wiki_family_snapshot import compare_root_env_key  # noqa: E402
 from wiki_paths import resolve_repo_root  # noqa: E402
 
 DEFAULT_REGISTRY_REL = "ai/schema/wiki_manager_registry.v1.json"
 _CHILD_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _MAX_CHILD_ID_LEN = 120
-# Shared copy for list warnings and report/full skip rows when child path == compare_root.
-_CHILD_EQUALS_COMPARE_EXPLAIN = (
-    "Set compare_root (**WIKI_MANAGER_COMPARE_ROOT**) to a sibling upstream tree or point each child "
-    "**path_env** at a domain fork checkout. Subcommands **report** and **full** skip this id unless "
-    "**--require-all** (then exit 2)."
-)
-
 # Stable bundle id under ai/runtime/manager/<id>/ for Base Model (left) vs this Manager checkout (right).
 _BASE_VS_MANAGER_ID = "base-vs-manager"
-_BASE_VS_MANAGER_COMPARE_HINT = (
-    "Set WIKI_MANAGER_COMPARE_ROOT (see ai/schema/wiki_manager_registry.v1.json compare_root_env) "
-    "to your LLM Wiki Base Model checkout so compare_root differs from this manager tree."
-)
+
+
+def _child_equals_compare_explain(registry: dict) -> str:
+    """Human hint when child checkout path equals compare_root (uses registry compare_root_env)."""
+    k = compare_root_env_key(registry)
+    return (
+        f"Set compare_root ({k}) to a sibling upstream tree or point each child "
+        "**path_env** at a domain fork checkout. Subcommands **report** and **full** skip this id unless "
+        "**--require-all** (then exit 2)."
+    )
+
+
+def _base_vs_manager_compare_hint(registry: dict) -> str:
+    k = compare_root_env_key(registry)
+    return (
+        f"Set {k} (see registry field compare_root_env) "
+        "to your LLM Wiki Base Model checkout so compare_root differs from this manager tree."
+    )
 
 
 def _load_registry(manager_root: Path, registry_rel: str) -> dict:
@@ -92,9 +100,7 @@ def _validate_registry(registry: dict) -> None:
 
 
 def _compare_root(registry: dict, manager_root: Path) -> Path:
-    env_key = registry.get("compare_root_env", "WIKI_MANAGER_COMPARE_ROOT")
-    if not isinstance(env_key, str) or not env_key.strip():
-        env_key = "WIKI_MANAGER_COMPARE_ROOT"
+    env_key = compare_root_env_key(registry)
     raw = os.environ.get(env_key, "").strip()
     if raw:
         p = Path(raw).expanduser().resolve()
@@ -111,9 +117,7 @@ def _require_distinct_base_compare(registry: dict, manager_root: Path) -> None:
     mr = manager_root.resolve()
     if cr.resolve() != mr.resolve():
         return
-    env_key = registry.get("compare_root_env", "WIKI_MANAGER_COMPARE_ROOT")
-    if not isinstance(env_key, str) or not env_key.strip():
-        env_key = "WIKI_MANAGER_COMPARE_ROOT"
+    env_key = compare_root_env_key(registry)
     print(
         f"--require-base-compare: set {env_key} to your LLM Wiki Base Model checkout "
         f"(must be a directory different from this manager tree at {mr}).",
@@ -157,7 +161,7 @@ def cmd_list(manager_root: Path, registry: dict) -> int:
             print(f"- {cid} ({label})")
             print(f"    {env_k}: {p}")
             if p.resolve() == cr.resolve():
-                print("    WARNING: child path equals compare_root. " + _CHILD_EQUALS_COMPARE_EXPLAIN)
+                print("    WARNING: child path equals compare_root. " + _child_equals_compare_explain(registry))
         else:
             print(f"- {cid} ({label})")
             print(f"    {env_k}: MISSING -> {p}")
@@ -392,7 +396,10 @@ def _for_each_resolved_child(
             print(msg)
             continue
         if path.resolve() == compare_root.resolve():
-            msg = f"skip {cid} ({label}): child checkout path equals compare_root ({path}). " + _CHILD_EQUALS_COMPARE_EXPLAIN
+            msg = (
+                f"skip {cid} ({label}): child checkout path equals compare_root ({path}). "
+                + _child_equals_compare_explain(registry)
+            )
             if require_all:
                 print(msg, file=sys.stderr)
                 return 2
@@ -461,7 +468,7 @@ def _resolved_base_compare_root(registry: dict, manager_root: Path) -> Path:
     """Return Base Model path from env, or raise SystemExit(2) if unset or invalid."""
     cr = _compare_root(registry, manager_root)
     if cr.resolve() == manager_root.resolve():
-        print("base-vs-manager: " + _BASE_VS_MANAGER_COMPARE_HINT, file=sys.stderr)
+        print("base-vs-manager: " + _base_vs_manager_compare_hint(registry), file=sys.stderr)
         raise SystemExit(2)
     return cr
 
@@ -476,13 +483,14 @@ def cmd_base_vs_manager_full(manager_root: Path, registry: dict, *, dry_run: boo
     mr = manager_root.resolve()
     if cr.resolve() == mr.resolve():
         if dry_run:
+            ek = compare_root_env_key(registry)
             print(
-                "skip base-vs-manager-full --dry-run: WIKI_MANAGER_COMPARE_ROOT is unset or "
+                f"skip base-vs-manager-full --dry-run: {ek} is unset or "
                 "resolves to this manager checkout. Export it to your LLM Wiki Base Model tree "
                 "to include this step (for example before make wiki-manager-refresh-dry)."
             )
             return 0
-        print("base-vs-manager: " + _BASE_VS_MANAGER_COMPARE_HINT, file=sys.stderr)
+        print("base-vs-manager: " + _base_vs_manager_compare_hint(registry), file=sys.stderr)
         return 2
     if dry_run:
         print(f"=== wiki-manager base-vs-manager-full (dry-run) -> {_BASE_VS_MANAGER_ID}")
@@ -515,7 +523,8 @@ def _parse_args() -> argparse.Namespace:
         "--require-base-compare",
         action="store_true",
         help=(
-            "Exit 2 unless compare_root (WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
+            "Exit 2 unless compare_root (env from registry compare_root_env, default "
+            "WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
             "(diff left side must not be this manager checkout). Use for parent-to-child drift bundles."
         ),
     )
@@ -535,7 +544,8 @@ def _parse_args() -> argparse.Namespace:
         "--require-base-compare",
         action="store_true",
         help=(
-            "Exit 2 unless compare_root (WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
+            "Exit 2 unless compare_root (env from registry compare_root_env, default "
+            "WIKI_MANAGER_COMPARE_ROOT) points at LLM Wiki Base Model "
             "(diff left side must not be this manager checkout)."
         ),
     )
@@ -543,7 +553,8 @@ def _parse_args() -> argparse.Namespace:
     p_bvm_r = sub.add_parser(
         "base-vs-manager-report",
         help=(
-            "fork_delta_report only: LLM Wiki Base Model (WIKI_MANAGER_COMPARE_ROOT) vs this manager checkout. "
+            "fork_delta_report only: LLM Wiki Base Model (compare_root from registry compare_root_env) vs "
+            "this manager checkout. "
             f"Writes ai/runtime/manager/{_BASE_VS_MANAGER_ID}/fork_delta_report.min.json"
         ),
     )
@@ -552,7 +563,8 @@ def _parse_args() -> argparse.Namespace:
         "base-vs-manager-full",
         help=(
             "Full fork-delta pipeline for Base Model vs this manager checkout (same bundle path prefix as report). "
-            "Requires WIKI_MANAGER_COMPARE_ROOT for a real run. With --dry-run only, exits 0 when the env is unset "
+            "Requires compare_root env (registry compare_root_env; default WIKI_MANAGER_COMPARE_ROOT) for a real run. "
+            "With --dry-run only, exits 0 when the env is unset "
             "(prints skip) so make wiki-manager-refresh-dry stays usable without local Base Model paths."
         ),
     )

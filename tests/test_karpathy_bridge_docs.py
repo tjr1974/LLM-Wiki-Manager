@@ -24,6 +24,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "check_quality_gate.py",
         "chunks_present",
         "claims.min.ndjson",
+        "compare_root_env",
         "detect_contradictions.py",
         "domain_targets.v",
         "editorial-policy.md",
@@ -47,15 +48,18 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "make wiki-topic-sources-no-compile",
         "make wiki-topic-sources",
         "make wiki-validate",
+        "module docstrings cross-link",
         "non-source",
         "Operator note",
         "Operator synthesis and `lint_wiki.py` claim bullets",
         "page-contracts.md",
         "proposed/",
         "protected-paths.md",
+        "Pytest subprocess hygiene",
         "python3 scripts/query_helper.py",
         "python3 scripts/writeback_artifact.py",
         "quality_dashboard.min.json",
+        "RESOLVED_PYTHON",
         "Root screenshots",
         "scripts/find_sources_for_topic.py",
         "skipped_no_dashboard",
@@ -71,6 +75,8 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "wiki-quickstart.md",
         "schema/AGENTS.md",
         "schema/wiki-manager.md",
+        "tests/_resolved_python.py",
+        "tests/test_build_hub_links.py",
         "Assistant preamble",
         "**Pytest leg**",
         "wiki/main.md",
@@ -89,7 +95,7 @@ def test_karpathy_bridge_mentions_toolchain_issue_template() -> None:
     assert "Assistant preamble" in text
     assert "wiki-quickstart.md" in text and "Pytest and CI" in text
     pl = text.index("**Pytest leg.**")
-    pl_chunk = text[pl : pl + 950]
+    pl_chunk = text[pl : pl + 1400]
     assert "proposed/README.md" in pl_chunk
     assert "schema/AGENTS.md" in pl_chunk
     assert "tests/test_githooks_wiring.py" in pl_chunk
@@ -98,6 +104,10 @@ def test_karpathy_bridge_mentions_toolchain_issue_template() -> None:
     assert "tests/test_makeflags_inheritance.py" in pl_chunk
     assert "tests/test_make_wiki_all_recipe.py" in pl_chunk
     assert "tests/test_karpathy_bridge_docs.py" in pl_chunk
+    assert "RESOLVED_PYTHON" in pl_chunk
+    assert "Pytest subprocess hygiene" in pl_chunk
+    assert "module docstrings cross-link" in pl_chunk
+    assert "tests/test_build_hub_links.py" in pl_chunk
 
 
 def test_schema_agents_githooks_bullet_links_pytest_leg_family() -> None:
@@ -116,6 +126,8 @@ def test_schema_agents_githooks_bullet_links_pytest_leg_family() -> None:
     assert "tests/test_wiki_manager_sync_status.py" in line
     assert "tests/test_make_wiki_all_recipe.py" in line
     assert "tests/test_karpathy_bridge_docs.py" in line
+    assert "tests/_resolved_python.py" in line
+    assert "tests/test_build_hub_links.py" in line
     assert "**Pytest leg**" in line
 
 
@@ -146,6 +158,11 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "tests/test_make_fork_delta_compare.py" in text
     assert "tests/conftest.py" in text
     assert "tests/test_makeflags_inheritance.py" in text
+    assert "tests/_resolved_python.py" in text
+    assert "tests/test_build_hub_links.py" in text
+    assert "RESOLVED_PYTHON" in text
+    assert "Pytest subprocess hygiene" in text
+    assert "module docstrings cross-link" in text
     assert "## Local full gate (Manager)" in text
     assert "wiki-all" in text
     assert "wiki-restore-runtime" in text
@@ -153,6 +170,15 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "tests/test_make_wiki_all_recipe.py" in text
     assert "tests/test_pipeline_step_order.py" in text
     assert "llm-wiki-family-repositories.md" in text
+
+
+def test_llm_wiki_family_repositories_mentions_subprocess_python_hygiene() -> None:
+    text = (ROOT / "wiki" / "synthesis" / "llm-wiki-family-repositories.md").read_text(encoding="utf-8")
+    assert "RESOLVED_PYTHON" in text
+    assert "tests/_resolved_python.py" in text
+    assert "tests/test_build_hub_links.py" in text
+    assert "Pytest subprocess hygiene" in text
+    assert "module docstrings cross-link" in text
 
 
 def test_schema_agents_fork_delta_bullets_mention_regression_tests() -> None:
@@ -226,6 +252,9 @@ def test_root_agents_lists_bridge() -> None:
     assert "tests/test_makeflags_inheritance.py" in agents
     assert "tests/test_make_wiki_all_recipe.py" in agents
     assert "tests/test_karpathy_bridge_docs.py" in agents
+    assert "tests/_resolved_python.py" in agents
+    assert "tests/test_build_hub_links.py" in agents
+    assert "module docstrings cross-link" in agents
     assert "karpathy-llm-wiki-bridge.md" in agents
     assert GIST_HOST_PATH in agents
     assert "wiki-log-tail" in agents
@@ -285,6 +314,19 @@ def test_readme_pre_push_links_toolchain_issue_template() -> None:
     assert "SECURITY.md" in chunk
     assert "Root screenshots" in chunk
     assert "make wiki-test -q" in chunk
+    assert "RESOLVED_PYTHON" in chunk
+    assert "tests/_resolved_python.py" in chunk
+    assert "tests/test_build_hub_links.py" in chunk
+    assert "module docstrings cross-link" in chunk
+
+
+def test_conftest_docstring_points_subprocess_python_hygiene() -> None:
+    text = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    assert "RESOLVED_PYTHON" in text
+    assert "_resolved_python" in text
+    assert "## Pytest subprocess hygiene" in text
+    assert "test_build_hub_links" in text
+    assert "Cross-link:" in text
 
 
 def test_github_issue_template_config_allows_blank_issues() -> None:
@@ -306,7 +348,7 @@ def test_orientation_docs_remain_linked() -> None:
     """Forks grep these paths. Keep Related lists and Makefile help wired."""
     quickstart = (ROOT / "schema" / "wiki-quickstart.md").read_text(encoding="utf-8")
     q_py = quickstart.index("**Pytest and CI.**")
-    q_chunk = quickstart[q_py : q_py + 1100]
+    q_chunk = quickstart[q_py : q_py + 2200]
     assert "Assistant preamble" in q_chunk
     assert "karpathy-llm-wiki-bridge.md" in q_chunk
     assert "**Pytest leg**" in q_chunk
@@ -318,12 +360,20 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_makeflags_inheritance.py" in q_chunk
     assert "karpathy-llm-wiki-bridge.md" in quickstart
     assert "tests/test_make_wiki_all_recipe.py" in quickstart
+    assert "RESOLVED_PYTHON" in q_chunk
+    assert "Pytest subprocess hygiene" in q_chunk
+    assert "tests/test_build_hub_links.py" in q_chunk
+    assert "module docstrings cross-link" in q_chunk
     assert "Screenshots at repo root" in quickstart
     assert "## Regression tests" in quickstart
     assert "wiki-manager-refresh-dry" in quickstart
     assert ".github/workflows/ci.yml" in quickstart
     assert "wiki_manager_sync_status.py" in quickstart
     schema_agents = (ROOT / "schema" / "AGENTS.md").read_text(encoding="utf-8")
+    assert "## Pytest subprocess hygiene" in schema_agents
+    assert "RESOLVED_PYTHON" in schema_agents
+    assert "_resolved_python.py" in schema_agents
+    assert "module docstrings cross-link" in schema_agents
     assert "## Regression tests" in schema_agents
     assert "## Local full gate (Manager)" in schema_agents
     assert "WIKI_PRE_PUSH=all" in schema_agents
@@ -335,7 +385,12 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-manager.md" in bridge
     assert "tests/conftest.py" in bridge
     assert "tests/test_makeflags_inheritance.py" in bridge
+    assert "RESOLVED_PYTHON" in bridge
+    assert "Pytest subprocess hygiene" in bridge
+    assert "module docstrings cross-link" in bridge
+    assert "tests/test_build_hub_links.py" in bridge
     fork_sync = (ROOT / "schema" / "fork-sync.md").read_text(encoding="utf-8")
+    assert "compare_root_env" in fork_sync
     assert "karpathy-llm-wiki-bridge.md" in fork_sync
     assert "wiki-manager.md" in fork_sync
     assert "wiki-manager-refresh-dry" in fork_sync
@@ -348,6 +403,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "config.yml" in fork_sync
     assert "tests/conftest.py" in fork_sync
     assert "tests/test_makeflags_inheritance.py" in fork_sync
+    assert "tests/_resolved_python.py" in fork_sync
+    assert "tests/test_build_hub_links.py" in fork_sync
+    assert "Pytest subprocess hygiene" in fork_sync
+    assert "module docstrings cross-link" in fork_sync
     assert "wiki-log-tail" in fork_sync
     assert "Optional article quality bookkeeping" in fork_sync
     assert "make wiki-authoring-hints" in fork_sync
@@ -387,6 +446,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_makeflags_inheritance.py" in readme
     assert "tests/test_make_wiki_all_recipe.py" in readme
     assert "tests/test_karpathy_bridge_docs.py" in readme
+    assert "tests/_resolved_python.py" in readme
+    assert "tests/test_build_hub_links.py" in readme
+    assert "RESOLVED_PYTHON" in readme
+    assert "module docstrings cross-link" in readme
     assert "tests/test_githooks_wiring.py" in readme
     assert "proposed/README.md" in readme
     assert "karpathy-llm-wiki-bridge.md" in readme
@@ -397,6 +460,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "canonical development home" in readme.lower()
     assert "llm-wiki-family-repositories.md" in readme
     assert "wiki-manager-refresh-dry" in readme
+    assert "compare_root_env" in readme
     assert ".github/workflows/ci.yml" in readme
     assert "wiki_manager_sync_status.py" in readme
     assert "machine-first" in readme.lower()
@@ -416,6 +480,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "writeback_artifact.py" in makefile
     assert "wiki-log-tail" in makefile
     proposed_readme = (ROOT / "proposed" / "README.md").read_text(encoding="utf-8")
+    assert "compare_root_env" in proposed_readme
     assert "wiki-manager-refresh-dry" in proposed_readme
     assert "schema/wiki-manager.md" in proposed_readme
     assert "wiki-toolchain.md" in proposed_readme
@@ -431,6 +496,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_makeflags_inheritance.py" in proposed_readme
     assert "tests/test_make_wiki_all_recipe.py" in proposed_readme
     assert "tests/test_karpathy_bridge_docs.py" in proposed_readme
+    assert "tests/_resolved_python.py" in proposed_readme
+    assert "RESOLVED_PYTHON" in proposed_readme
+    assert "module docstrings cross-link" in proposed_readme
+    assert "tests/test_build_hub_links.py" in proposed_readme
     assert "make wiki-test -q" in proposed_readme
     for rel in (
         "schema/citation-spec.md",
@@ -473,6 +542,9 @@ def test_orientation_docs_remain_linked() -> None:
     assert "test_wiki_manager_sync_status.py" in ci_yml
     assert "test_fork_delta_report.py" in ci_yml
     assert "test_make_fork_delta_compare.py" in ci_yml
+    assert "tests/_resolved_python.py" in ci_yml
+    assert "Pytest subprocess hygiene" in ci_yml
+    assert "module docstrings cross-link" in ci_yml
     pr_tpl = (ROOT / ".github/pull_request_template.md").read_text(encoding="utf-8")
     assert "make wiki-test -q" in pr_tpl
     assert "Assistant preamble" in pr_tpl
@@ -499,6 +571,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki_manager_sync_status.py" in pr_tpl
     assert "fork_delta_report.py" in pr_tpl
     assert "wiki-manager-sync-status-json" in pr_tpl
+    assert "compare_root_env" in pr_tpl
+    assert "compare_root_env_key" in pr_tpl
     assert "tests/test_wiki_manager_fork_delta.py" in pr_tpl
     assert "tests/test_wiki_family_snapshot.py" in pr_tpl
     assert "tests/test_wiki_manager_sync_status.py" in pr_tpl
@@ -506,6 +580,11 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/conftest.py" in pr_tpl
     assert "tests/test_makeflags_inheritance.py" in pr_tpl
     assert "tests/test_karpathy_bridge_docs.py" in pr_tpl
+    assert "tests/_resolved_python.py" in pr_tpl
+    assert "tests/test_build_hub_links.py" in pr_tpl
+    assert "RESOLVED_PYTHON" in pr_tpl
+    assert "Pytest subprocess hygiene" in pr_tpl
+    assert "module docstrings cross-link" in pr_tpl
     assert "tests/test_fork_delta_report.py" in pr_tpl
     assert "tests/test_make_fork_delta_compare.py" in pr_tpl
     assert "Pytest map:" in pr_tpl
@@ -513,6 +592,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki/synthesis" in pr_tpl
     issue_tpl = (ROOT / ".github" / "ISSUE_TEMPLATE" / "wiki-toolchain.md").read_text(encoding="utf-8")
     evidence = issue_tpl.split("## Evidence", 1)[1].split("## Gist alignment", 1)[0]
+    assert "compare_root_env" in evidence
     assert "Step-order or gate regressions" in evidence
     assert "tests/test_make_wiki_all_recipe.py" in evidence
     assert "WIKI_PRE_PUSH=all" in evidence
@@ -531,9 +611,11 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_pipeline_step_order.py" in hook_tail
     assert "tests/test_make_wiki_all_recipe.py" in hook_tail
     assert "tests/test_karpathy_bridge_docs.py" in hook_tail
+    assert "tests/_resolved_python.py" in hook_tail
+    assert "tests/test_build_hub_links.py" in hook_tail
     assert issue_tpl.count("proposed/README.md") >= 2
     parity = issue_tpl.split("**Pytest and CI parity**", 1)[1]
-    parity_head = parity[:1800]
+    parity_head = parity[:2800]
     assert "tests/test_pipeline_step_order.py" in parity_head
     assert "tests/conftest.py" in parity_head
     assert "tests/test_makeflags_inheritance.py" in parity_head
@@ -541,7 +623,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_make_wiki_all_recipe.py" in parity_head
     assert "tests/test_karpathy_bridge_docs.py" in parity_head
     assert "tests/test_githooks_wiring.py" in parity_head
-    assert "**`schema/AGENTS.md`** (githooks bullet)" in issue_tpl
+    assert "tests/_resolved_python.py" in parity_head
+    assert "tests/test_build_hub_links.py" in parity_head
+    assert "module docstrings cross-link" in parity_head
+    assert "githooks bullet" in issue_tpl and "Pytest subprocess hygiene" in issue_tpl
     assert "scripts/githooks/README.md" in issue_tpl
     assert "test_makefile_help_wiki_test_echo_warns_no_extra_make_goals" in issue_tpl
     assert "test_githooks_readme_documents_modes" in issue_tpl
@@ -577,6 +662,8 @@ def test_orientation_docs_remain_linked() -> None:
 
 def test_wiki_quickstart_read_first_lists_bridge() -> None:
     text = (ROOT / "schema" / "wiki-quickstart.md").read_text(encoding="utf-8")
+    assert "module docstrings cross-link" in text
+    assert "compare_root_env" in text
     assert "machine-first" in text.lower()
     assert "## Read first" in text
     assert text.index("6. **`karpathy-llm-wiki-bridge.md`**") > text.index("## Read first")
@@ -598,6 +685,12 @@ def test_wiki_quickstart_read_first_lists_bridge() -> None:
 
 def test_ingest_prompt_mentions_root_screenshot_hygiene() -> None:
     text = (ROOT / "prompts" / "ingest.txt").read_text(encoding="utf-8")
+    assert "RESOLVED_PYTHON" in text
+    assert "tests/_resolved_python.py" in text
+    assert "tests/test_build_hub_links.py" in text
+    assert "Pytest subprocess hygiene" in text
+    assert "module docstrings cross-link" in text
+    assert "compare_root_env" in text
     assert "wiki-manager-refresh-dry" in text
     assert "schema/wiki-manager.md" in text
     assert "make wiki-test -q" in text
@@ -611,7 +704,13 @@ def test_ingest_prompt_mentions_root_screenshot_hygiene() -> None:
 
 def test_wiki_edit_prompt_mentions_query_writeback() -> None:
     edit = (ROOT / "prompts" / "wiki-edit.txt").read_text(encoding="utf-8")
+    assert "RESOLVED_PYTHON" in edit
+    assert "tests/_resolved_python.py" in edit
+    assert "tests/test_build_hub_links.py" in edit
+    assert "Pytest subprocess hygiene" in edit
+    assert "module docstrings cross-link" in edit
     assert "Avoid semicolons" in edit
+    assert "compare_root_env" in edit
     assert "wiki-manager-refresh-dry" in edit
     assert "human-wiki-automation-boundary.md" in edit
     assert "make wiki-test -q" in edit
@@ -643,12 +742,15 @@ def test_llm_wiki_family_synthesis_page_lists_four_paths() -> None:
         assert path in body, path
     assert "machine-first" in body.lower()
     assert "wiki-manager-refresh-dry" in body
+    assert "compare_root_env" in body
     assert "scripts/githooks/README.md" in body
     assert "**LLM Wiki Manager local parity.**" in body
     assert "wiki-restore-runtime" in body
     assert "tests/conftest.py" in body
     assert "MAKEFLAGS" in body
     assert "tests/test_makeflags_inheritance.py" in body
+    assert "RESOLVED_PYTHON" in body
+    assert "module docstrings cross-link" in body
 
 
 def test_cursor_wiki_rules_files_present_and_scoped() -> None:
@@ -664,6 +766,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
         assert "globs:" in head, path
         assert "alwaysApply:" in head, path
     a = authoring.read_text(encoding="utf-8")
+    assert "compare_root_env" in a
     assert "make wiki-test -q" in a
     assert "wiki-manager-refresh-dry" in a
     assert "schema/wiki-manager.md" in a
@@ -671,7 +774,8 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "llm-wiki-family-repositories.md" in a
     assert "proposed/README.md" in a
     assert "**Pytest leg**" in a
-    assert "**`schema/AGENTS.md`** (githooks bullet)" in a
+    assert "githooks bullet" in a and "Pytest subprocess hygiene" in a
+    assert "module docstrings cross-link" in a
     assert "tests/conftest.py" in a
     assert "tests/test_makeflags_inheritance.py" in a
     assert "tests/test_pipeline_step_order.py" in a
@@ -690,12 +794,15 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "config.yml" in a
     assert "semicolons" in a.lower()
     p = pipeline.read_text(encoding="utf-8")
+    assert "compare_root_env_key" in p
+    assert "compare_root_env" in p
     assert "_violations_from_prose_segment" in p
     assert "U+FF1B" in p
     assert "make wiki-test -q" in p
     assert "proposed/README.md" in p
     assert "**Pytest leg**" in p
-    assert "**`schema/AGENTS.md`** (githooks bullet)" in p
+    assert "githooks bullet" in p and "Pytest subprocess hygiene" in p
+    assert "module docstrings cross-link" in p
     assert "tests/conftest.py" in p
     assert "tests/test_makeflags_inheritance.py" in p
     assert "test_makefile_help_wiki_test_echo_warns_no_extra_make_goals" in p
@@ -709,6 +816,8 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "tests/test_makeflags_inheritance.py" in opt
     assert "tests/test_make_wiki_all_recipe.py" in opt
     assert "tests/test_karpathy_bridge_docs.py" in opt
+    assert "tests/_resolved_python.py" in opt
+    assert "tests/test_build_hub_links.py" in opt
     assert "scripts/githooks/README.md" in p
     assert "scripts/lint_wiki.py" in p
     assert "tests/test_lint_wiki.py" in p
