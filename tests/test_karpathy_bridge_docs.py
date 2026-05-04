@@ -646,6 +646,9 @@ def test_llm_wiki_family_synthesis_page_lists_four_paths() -> None:
     assert "scripts/githooks/README.md" in body
     assert "**LLM Wiki Manager local parity.**" in body
     assert "wiki-restore-runtime" in body
+    assert "tests/conftest.py" in body
+    assert "MAKEFLAGS" in body
+    assert "tests/test_makeflags_inheritance.py" in body
 
 
 def test_cursor_wiki_rules_files_present_and_scoped() -> None:

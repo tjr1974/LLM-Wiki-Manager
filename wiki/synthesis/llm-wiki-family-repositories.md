@@ -61,7 +61,7 @@ Scripts do **not** merge **`wiki/`** prose into children unattended. Use **Manag
 | 4b | **`make wiki-manager-sync-status`** (after step 4 or **`make wiki-manager-report-from-base`**) writes **`ai/runtime/manager/sync_status.min.json`**: one JSON rollup of Git heads, dirty counts, **`drift_compare_mode`**, and per-child **`fork_delta_report`** counts. |
 | 5 | In each child repo run **`make wiki-all`** (or their documented merge gate) after ports. |
 
-**LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates.
+**LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates. Pytest shell-outs to nested **`make`** inherit GNU make **`MAKEFLAGS`** unless **`tests/conftest.py`** clears it (**`schema/karpathy-llm-wiki-bridge.md`** **Pytest leg**, **`tests/test_makeflags_inheritance.py`**).
 
 ## See also
 
