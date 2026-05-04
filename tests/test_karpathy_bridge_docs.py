@@ -346,6 +346,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert ".cursor/rules" in fork_sync
     assert "wiki-toolchain.md" in fork_sync
     assert "config.yml" in fork_sync
+    assert "tests/conftest.py" in fork_sync
+    assert "tests/test_makeflags_inheritance.py" in fork_sync
     assert "wiki-log-tail" in fork_sync
     assert "Optional article quality bookkeeping" in fork_sync
     assert "make wiki-authoring-hints" in fork_sync
