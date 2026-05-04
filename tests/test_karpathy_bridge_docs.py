@@ -144,6 +144,8 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci" in text
     assert "tests/test_fork_delta_report.py" in text
     assert "tests/test_make_fork_delta_compare.py" in text
+    assert "tests/conftest.py" in text
+    assert "tests/test_makeflags_inheritance.py" in text
     assert "## Local full gate (Manager)" in text
     assert "wiki-all" in text
     assert "wiki-restore-runtime" in text
