@@ -384,6 +384,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "make help" in proposed_readme
     assert "tests/test_githooks_wiring.py" in proposed_readme
     assert "tests/test_pipeline_step_order.py" in proposed_readme
+    assert "tests/test_make_wiki_all_recipe.py" in proposed_readme
     assert "tests/test_karpathy_bridge_docs.py" in proposed_readme
     assert "make wiki-test -q" in proposed_readme
     for rel in (
@@ -599,6 +600,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "**Pytest leg**" in a
     assert "**`schema/AGENTS.md`** (githooks bullet)" in a
     assert "tests/test_pipeline_step_order.py" in a
+    assert "tests/test_make_wiki_all_recipe.py" in a
     assert "tests/test_karpathy_bridge_docs.py" in a
     assert "tests/test_githooks_wiring.py" in a
     assert "scripts/githooks/README.md" in a
