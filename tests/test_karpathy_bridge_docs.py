@@ -301,6 +301,10 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-toolchain.md" in fork_sync
     assert "config.yml" in fork_sync
     assert "wiki-log-tail" in fork_sync
+    assert "Optional article quality bookkeeping" in fork_sync
+    assert "make wiki-authoring-hints" in fork_sync
+    assert "ai/artifacts/authoring/" in fork_sync
+    assert "schema/article-quality-tracking.md" in fork_sync
     boundary = (ROOT / "schema" / "human-wiki-automation-boundary.md").read_text(encoding="utf-8")
     assert "wiki-log-tail" in boundary
     assert "llm-wiki-family-repositories.md" in boundary
@@ -312,6 +316,9 @@ def test_orientation_docs_remain_linked() -> None:
     assert "config.yml" in boundary
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in boundary
     assert "Root screenshots (Manager)" in boundary
+    assert "Authoring backlog hints (fork-local)" in boundary
+    assert "ai/artifacts/authoring/" in boundary
+    assert "Optional article quality bookkeeping" in boundary
     triage = (ROOT / "schema" / "wiki-source-triage-protocol.md").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in triage
     assert "wiki-log-tail" in triage
