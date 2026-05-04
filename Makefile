@@ -2,7 +2,7 @@
 #
 # Forks may set VALIDATE_WIKI_ARGS='--strict-citation-meta' for Makefile wiki-validate wiki-check wiki-ci targets (or export before autopilot or daemon).
 # Filing (optional): .github/ISSUE_TEMPLATE/wiki-toolchain.md for suspected CI or Makefile drift (README Pre-push). .github/ISSUE_TEMPLATE/config.yml allows blank GitHub issues.
-# wiki-test: never run "make wiki-test -q" (-q is a bogus make goal). README Pre-push, Assistant preamble table, schema/wiki-quickstart.md Pytest and CI, schema/karpathy-llm-wiki-bridge.md Pytest leg, proposed/README.md, schema/AGENTS.md githooks bullet, scripts/githooks/README.md, make help, tests/test_githooks_wiring.py tests/test_pipeline_step_order.py tests/test_karpathy_bridge_docs.py tests/test_wiki_manager_fork_delta.py tests/test_wiki_family_snapshot.py.
+# wiki-test: never run "make wiki-test -q" (-q is a bogus make goal). README Pre-push, Assistant preamble table, schema/wiki-quickstart.md Pytest and CI, schema/karpathy-llm-wiki-bridge.md Pytest leg, proposed/README.md, schema/AGENTS.md githooks bullet, scripts/githooks/README.md, make help, tests/test_githooks_wiring.py tests/test_pipeline_step_order.py tests/test_make_wiki_all_recipe.py tests/test_karpathy_bridge_docs.py tests/test_wiki_manager_fork_delta.py tests/test_wiki_family_snapshot.py.
 
 VALIDATE_WIKI_ARGS ?=
 # Space-separated keywords passed to query_helper (example: make wiki-query Q='example entity').
@@ -68,7 +68,7 @@ help:
 	@echo "make wiki-manager-base-vs-manager-report  # Base Model vs Manager fork_delta_report (needs WIKI_MANAGER_COMPARE_ROOT)"
 	@echo 'make wiki-manager-base-vs-manager-full WIKI_MANAGER_ARGS="--dry-run"  # full pipeline for Base vs Manager bundle'
 	@echo "make wiki-manager-refresh-dry  # list + snapshot + base-vs-manager-full --dry-run + full --dry-run (safe without child paths)"
-	@echo "make wiki-all       # wiki-test + wiki-ci + wiki-quality-gate (wiki-test: pytest + wiki-restore-runtime)"
+	@echo "make wiki-all       # wiki-test + wiki-ci + wiki-quality-gate + wiki-restore-runtime (clean ai/runtime/ after local parity)"
 	@echo "make wiki-test      # pytest -q then wiki-restore-runtime (fast loop; leaves ai/runtime/ matching HEAD)"
 	@echo '  (wiki-test: no extra make goals after the target—e.g. make wiki-test -q is invalid; README Pre-push; tests/test_githooks_wiring.py tests/test_pipeline_step_order.py)'
 	@echo "make wiki-restore-runtime  # git checkout -- ai/runtime/ (drop timestamp-only test/gate churn)"
@@ -286,7 +286,7 @@ wiki-ci: wiki-compile
 	python3 scripts/validate_ingest_queue_health.py
 
 wiki-all:
-	$(MAKE) wiki-test && $(MAKE) wiki-ci && $(MAKE) wiki-quality-gate
+	$(MAKE) wiki-test && $(MAKE) wiki-ci && $(MAKE) wiki-quality-gate && $(MAKE) wiki-restore-runtime
 
 wiki-restore-runtime:
 	git checkout -- ai/runtime/

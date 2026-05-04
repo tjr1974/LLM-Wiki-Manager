@@ -294,6 +294,7 @@ def test_makefile_header_comments_mention_issue_templates() -> None:
     assert "schema/AGENTS.md" in head
     assert "tests/test_githooks_wiring.py" in head
     assert "tests/test_pipeline_step_order.py" in head
+    assert "tests/test_make_wiki_all_recipe.py" in head
     assert "tests/test_karpathy_bridge_docs.py" in head
     assert "tests/test_wiki_manager_fork_delta.py" in head
     assert "tests/test_wiki_family_snapshot.py" in head

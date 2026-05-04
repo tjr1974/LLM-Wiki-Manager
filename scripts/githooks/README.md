@@ -27,7 +27,7 @@ Runs **`make`** gates before the push proceeds. Control behavior with **`WIKI_PR
 | **`off`**, **`0`**, **`skip`** | No-op (exit 0). |
 | **`check`** (default) | **`make wiki-check`** — Markdown-focused gates after **`wiki-compile`**. |
 | **`ci`** | **`make wiki-ci`** then **`make wiki-quality-gate`** — matches the wiki leg of **`.github/workflows/ci.yml`** after **`wiki-test`**. |
-| **`all`** | **`make wiki-all`** — **`wiki-test`** (pytest + restore **`ai/runtime/`**) then **`wiki-ci`** then **`wiki-quality-gate`**, same spirit as Actions. |
+| **`all`** | **`make wiki-all`** — **`wiki-test`** (pytest + restore **`ai/runtime/`**) then **`wiki-ci`** then **`wiki-quality-gate`** then **`wiki-restore-runtime`** again (local clean tree; Actions keeps step outputs). |
 
 Examples:
 

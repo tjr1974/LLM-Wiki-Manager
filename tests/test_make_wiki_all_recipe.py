@@ -1,4 +1,4 @@
-"""``make wiki-all`` must reset ``ai/runtime`` via ``wiki-test`` before merge gates."""
+"""``make wiki-all`` restores ``ai/runtime`` via ``wiki-test`` before merge gates and again after ``wiki-quality-gate``."""
 
 from __future__ import annotations
 
@@ -23,4 +23,10 @@ def test_makefile_wiki_all_chains_wiki_test_before_ci() -> None:
     assert "$(MAKE) wiki-test" in recipe
     assert "$(MAKE) wiki-ci" in recipe
     assert "$(MAKE) wiki-quality-gate" in recipe
-    assert recipe.index("wiki-test") < recipe.index("wiki-ci") < recipe.index("wiki-quality-gate")
+    assert "$(MAKE) wiki-restore-runtime" in recipe
+    assert (
+        recipe.index("wiki-test")
+        < recipe.index("wiki-ci")
+        < recipe.index("wiki-quality-gate")
+        < recipe.rindex("wiki-restore-runtime")
+    )

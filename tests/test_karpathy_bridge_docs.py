@@ -586,6 +586,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "make wiki-test -q" in a
     assert "wiki-manager-refresh-dry" in a
     assert "schema/wiki-manager.md" in a
+    assert "ends with **`wiki-restore-runtime`**" in a
     assert "llm-wiki-family-repositories.md" in a
     assert "proposed/README.md" in a
     assert "**Pytest leg**" in a
@@ -641,6 +642,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "## Canonical development hub" in p
     assert "canonical toolchain home" in p.lower()
     assert "test_fork_delta_report.py" in p
+    assert "test_make_wiki_all_recipe.py" in p
     assert "globs: AGENTS.md,Makefile" in p
     assert "README.md" in p
     assert "wiki-quickstart.md" in p
