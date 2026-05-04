@@ -30,6 +30,8 @@ def test_readme_documents_preamble_table_and_githooks() -> None:
     assert "make wiki-test -q" in chunk
     assert "schema/AGENTS.md" in chunk
     assert "tests/test_karpathy_bridge_docs.py" in chunk
+    assert "tests/conftest.py" in chunk
+    assert "tests/test_makeflags_inheritance.py" in chunk
     assert "tests/test_githooks_wiring.py" in chunk
     assert "scripts/githooks" in text
 
@@ -50,6 +52,8 @@ def test_githooks_readme_documents_modes() -> None:
     assert "wiki-manager-sync-status" in text
     assert "schema/wiki-manager.md" in text
     assert "tests/test_make_wiki_all_recipe.py" in text
+    assert "tests/conftest.py" in text
+    assert "tests/test_makeflags_inheritance.py" in text
     assert "pre-push" in text.lower()
 
 
@@ -76,5 +80,7 @@ def test_schema_agents_documents_optional_githooks_bullet() -> None:
     assert "proposed/README.md" in text
     assert "tests/test_githooks_wiring.py" in text
     assert "tests/test_pipeline_step_order.py" in text
+    assert "tests/conftest.py" in text
+    assert "tests/test_makeflags_inheritance.py" in text
     assert "tests/test_make_wiki_all_recipe.py" in text
     assert "tests/test_karpathy_bridge_docs.py" in text

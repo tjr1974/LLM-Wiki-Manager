@@ -89,11 +89,13 @@ def test_karpathy_bridge_mentions_toolchain_issue_template() -> None:
     assert "Assistant preamble" in text
     assert "wiki-quickstart.md" in text and "Pytest and CI" in text
     pl = text.index("**Pytest leg.**")
-    pl_chunk = text[pl : pl + 700]
+    pl_chunk = text[pl : pl + 950]
     assert "proposed/README.md" in pl_chunk
     assert "schema/AGENTS.md" in pl_chunk
     assert "tests/test_githooks_wiring.py" in pl_chunk
     assert "tests/test_pipeline_step_order.py" in pl_chunk
+    assert "tests/conftest.py" in pl_chunk
+    assert "tests/test_makeflags_inheritance.py" in pl_chunk
     assert "tests/test_make_wiki_all_recipe.py" in pl_chunk
     assert "tests/test_karpathy_bridge_docs.py" in pl_chunk
 
@@ -109,6 +111,8 @@ def test_schema_agents_githooks_bullet_links_pytest_leg_family() -> None:
     assert "karpathy-llm-wiki-bridge.md" in line
     assert "tests/test_githooks_wiring.py" in line
     assert "tests/test_pipeline_step_order.py" in line
+    assert "tests/conftest.py" in line
+    assert "tests/test_makeflags_inheritance.py" in line
     assert "tests/test_wiki_manager_sync_status.py" in line
     assert "tests/test_make_wiki_all_recipe.py" in line
     assert "tests/test_karpathy_bridge_docs.py" in line
@@ -216,6 +220,8 @@ def test_root_agents_lists_bridge() -> None:
     assert "proposed/README.md" in agents
     assert "tests/test_githooks_wiring.py" in agents
     assert "tests/test_pipeline_step_order.py" in agents
+    assert "tests/conftest.py" in agents
+    assert "tests/test_makeflags_inheritance.py" in agents
     assert "tests/test_make_wiki_all_recipe.py" in agents
     assert "tests/test_karpathy_bridge_docs.py" in agents
     assert "karpathy-llm-wiki-bridge.md" in agents
@@ -298,7 +304,7 @@ def test_orientation_docs_remain_linked() -> None:
     """Forks grep these paths. Keep Related lists and Makefile help wired."""
     quickstart = (ROOT / "schema" / "wiki-quickstart.md").read_text(encoding="utf-8")
     q_py = quickstart.index("**Pytest and CI.**")
-    q_chunk = quickstart[q_py : q_py + 800]
+    q_chunk = quickstart[q_py : q_py + 1100]
     assert "Assistant preamble" in q_chunk
     assert "karpathy-llm-wiki-bridge.md" in q_chunk
     assert "**Pytest leg**" in q_chunk
@@ -306,6 +312,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "schema/AGENTS.md" in q_chunk
     assert "Makefile" in q_chunk and "make help" in q_chunk
     assert "make wiki-test -q" in q_chunk
+    assert "tests/conftest.py" in q_chunk
+    assert "tests/test_makeflags_inheritance.py" in q_chunk
     assert "karpathy-llm-wiki-bridge.md" in quickstart
     assert "tests/test_make_wiki_all_recipe.py" in quickstart
     assert "Screenshots at repo root" in quickstart
@@ -319,8 +327,12 @@ def test_orientation_docs_remain_linked() -> None:
     assert "WIKI_PRE_PUSH=all" in schema_agents
     assert "machine-first" in schema_agents.lower()
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in schema_agents
+    assert "tests/conftest.py" in schema_agents
+    assert "tests/test_makeflags_inheritance.py" in schema_agents
     bridge = (ROOT / "schema" / "karpathy-llm-wiki-bridge.md").read_text(encoding="utf-8")
     assert "wiki-manager.md" in bridge
+    assert "tests/conftest.py" in bridge
+    assert "tests/test_makeflags_inheritance.py" in bridge
     fork_sync = (ROOT / "schema" / "fork-sync.md").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in fork_sync
     assert "wiki-manager.md" in fork_sync
@@ -367,6 +379,8 @@ def test_orientation_docs_remain_linked() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "Same cross-refs as" in readme
     assert "tests/test_pipeline_step_order.py" in readme
+    assert "tests/conftest.py" in readme
+    assert "tests/test_makeflags_inheritance.py" in readme
     assert "tests/test_make_wiki_all_recipe.py" in readme
     assert "tests/test_karpathy_bridge_docs.py" in readme
     assert "tests/test_githooks_wiring.py" in readme
@@ -409,6 +423,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "make help" in proposed_readme
     assert "tests/test_githooks_wiring.py" in proposed_readme
     assert "tests/test_pipeline_step_order.py" in proposed_readme
+    assert "tests/conftest.py" in proposed_readme
+    assert "tests/test_makeflags_inheritance.py" in proposed_readme
     assert "tests/test_make_wiki_all_recipe.py" in proposed_readme
     assert "tests/test_karpathy_bridge_docs.py" in proposed_readme
     assert "make wiki-test -q" in proposed_readme
@@ -431,6 +447,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "schema/AGENTS.md" in ci_yml
     assert "tests/test_githooks_wiring.py" in ci_yml
     assert "tests/test_pipeline_step_order.py" in ci_yml
+    assert "tests/conftest.py" in ci_yml
+    assert "tests/test_makeflags_inheritance.py" in ci_yml
     assert "tests/test_karpathy_bridge_docs.py" in ci_yml
     assert "tests/test_make_wiki_all_recipe.py" in ci_yml
     assert "again after **`wiki-quality-gate`**" in ci_yml
@@ -481,6 +499,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_wiki_family_snapshot.py" in pr_tpl
     assert "tests/test_wiki_manager_sync_status.py" in pr_tpl
     assert "tests/test_pipeline_step_order.py" in pr_tpl
+    assert "tests/conftest.py" in pr_tpl
+    assert "tests/test_makeflags_inheritance.py" in pr_tpl
     assert "tests/test_karpathy_bridge_docs.py" in pr_tpl
     assert "tests/test_fork_delta_report.py" in pr_tpl
     assert "tests/test_make_fork_delta_compare.py" in pr_tpl
@@ -511,6 +531,8 @@ def test_orientation_docs_remain_linked() -> None:
     parity = issue_tpl.split("**Pytest and CI parity**", 1)[1]
     parity_head = parity[:1800]
     assert "tests/test_pipeline_step_order.py" in parity_head
+    assert "tests/conftest.py" in parity_head
+    assert "tests/test_makeflags_inheritance.py" in parity_head
     assert "tests/test_wiki_manager_sync_status.py" in parity_head
     assert "tests/test_make_wiki_all_recipe.py" in parity_head
     assert "tests/test_karpathy_bridge_docs.py" in parity_head
