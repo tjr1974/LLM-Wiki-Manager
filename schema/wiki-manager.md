@@ -43,6 +43,11 @@ This checkout is **LLM Wiki Manager**: a coordination layer on the same Karpathy
 
 Single-child **`make`** parity: **`make fork-delta CHILD='…' COMPARE='…'`** and **`make fork-delta-full`** with the same variables pass **`--compare-root`** into **`fork_delta_report.py`** while keeping default outputs under **`ai/runtime/fork_delta_*.min.json`**.
 
+## Local full gate (Manager)
+
+- **`make wiki-all`** runs **`make wiki-test`** (pytest plus **`wiki-restore-runtime`**), then **`make wiki-ci`**, then **`make wiki-quality-gate`**, then **`wiki-restore-runtime`** again. The final restore keeps **`ai/runtime/`** clean when **`wiki-ci`** refreshes timestamps. **GitHub Actions** keeps separate workflow steps instead of one chained **`make`** target. **`tests/test_make_wiki_all_recipe.py`** pins the **`Makefile`** **`wiki-all`** recipe. **`tests/test_pipeline_step_order.py`** covers related **`Makefile`** step order where it applies. Operator-facing prose also appears under **`wiki/synthesis/llm-wiki-family-repositories.md`** **LLM Wiki Manager local parity**.
+- Optional **`pre-push`**: **`WIKI_PRE_PUSH=all`** runs **`make wiki-all`**. See **`scripts/githooks/README.md`**.
+
 Direct invocation:
 
 ```bash

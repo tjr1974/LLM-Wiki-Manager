@@ -136,6 +136,13 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
     assert "tests/test_wiki_family_snapshot.py" in text
     assert "tests/test_fork_delta_report.py" in text
     assert "tests/test_make_fork_delta_compare.py" in text
+    assert "## Local full gate (Manager)" in text
+    assert "wiki-all" in text
+    assert "wiki-restore-runtime" in text
+    assert "WIKI_PRE_PUSH=all" in text
+    assert "tests/test_make_wiki_all_recipe.py" in text
+    assert "tests/test_pipeline_step_order.py" in text
+    assert "llm-wiki-family-repositories.md" in text
 
 
 def test_schema_agents_fork_delta_bullets_mention_regression_tests() -> None:
