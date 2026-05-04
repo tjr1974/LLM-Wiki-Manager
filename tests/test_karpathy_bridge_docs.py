@@ -94,6 +94,7 @@ def test_karpathy_bridge_mentions_toolchain_issue_template() -> None:
     assert "schema/AGENTS.md" in pl_chunk
     assert "tests/test_githooks_wiring.py" in pl_chunk
     assert "tests/test_pipeline_step_order.py" in pl_chunk
+    assert "tests/test_make_wiki_all_recipe.py" in pl_chunk
     assert "tests/test_karpathy_bridge_docs.py" in pl_chunk
 
 
@@ -108,6 +109,7 @@ def test_schema_agents_githooks_bullet_links_pytest_leg_family() -> None:
     assert "karpathy-llm-wiki-bridge.md" in line
     assert "tests/test_githooks_wiring.py" in line
     assert "tests/test_pipeline_step_order.py" in line
+    assert "tests/test_make_wiki_all_recipe.py" in line
     assert "tests/test_karpathy_bridge_docs.py" in line
     assert "**Pytest leg**" in line
 
@@ -203,6 +205,7 @@ def test_root_agents_lists_bridge() -> None:
     assert "proposed/README.md" in agents
     assert "tests/test_githooks_wiring.py" in agents
     assert "tests/test_pipeline_step_order.py" in agents
+    assert "tests/test_make_wiki_all_recipe.py" in agents
     assert "tests/test_karpathy_bridge_docs.py" in agents
     assert "karpathy-llm-wiki-bridge.md" in agents
     assert GIST_HOST_PATH in agents
@@ -346,6 +349,7 @@ def test_orientation_docs_remain_linked() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "Same cross-refs as" in readme
     assert "tests/test_pipeline_step_order.py" in readme
+    assert "tests/test_make_wiki_all_recipe.py" in readme
     assert "tests/test_karpathy_bridge_docs.py" in readme
     assert "tests/test_githooks_wiring.py" in readme
     assert "proposed/README.md" in readme
@@ -466,6 +470,7 @@ def test_orientation_docs_remain_linked() -> None:
     hook_tail = hook_tail[:900]
     assert "make help" in hook_tail
     assert "tests/test_pipeline_step_order.py" in hook_tail
+    assert "tests/test_make_wiki_all_recipe.py" in hook_tail
     assert "tests/test_karpathy_bridge_docs.py" in hook_tail
     assert issue_tpl.count("proposed/README.md") >= 2
     parity = issue_tpl.split("**Pytest and CI parity**", 1)[1]
@@ -487,6 +492,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert ".cursor/rules" in issue_tpl
     assert "test_pipeline_step_order.py" in issue_tpl
     assert "test_make_wiki_all_recipe.py" in issue_tpl
+    assert issue_tpl.count("tests/test_make_wiki_all_recipe.py") >= 2
     assert "test_wiki_manager_fork_delta.py" in issue_tpl
     assert "wiki_family_snapshot.py" in issue_tpl
     assert "wiki-manager-refresh-dry" in issue_tpl
@@ -621,11 +627,13 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "**Pytest leg**" in p
     assert "**`schema/AGENTS.md`** (githooks bullet)" in p
     assert "test_makefile_help_wiki_test_echo_warns_no_extra_make_goals" in p
+    assert "test_makefile_wiki_all_chains_wiki_test_before_ci" in p
     assert "test_readme_pre_push_links_toolchain_issue_template" in p
     assert "test_githooks_readme_documents_modes" in p
     opt = p[p.index("Optional pre-push hooks") : p.index("Optional pre-push hooks") + 950]
     assert "make help" in opt
     assert "tests/test_pipeline_step_order.py" in opt
+    assert "tests/test_make_wiki_all_recipe.py" in opt
     assert "tests/test_karpathy_bridge_docs.py" in opt
     assert "scripts/githooks/README.md" in p
     assert "scripts/lint_wiki.py" in p

@@ -74,4 +74,5 @@ def test_schema_agents_documents_optional_githooks_bullet() -> None:
     assert "proposed/README.md" in text
     assert "tests/test_githooks_wiring.py" in text
     assert "tests/test_pipeline_step_order.py" in text
+    assert "tests/test_make_wiki_all_recipe.py" in text
     assert "tests/test_karpathy_bridge_docs.py" in text

@@ -27,4 +27,4 @@ If ingest, query, lint, index, or log vocabulary moves, confirm **`schema/karpat
 
 - [ ] Ran **`make wiki-test`** or **`make wiki-ci`** locally
 - [ ] Optional chronicle slice: **`make wiki-log-tail`**
-- [ ] If **`scripts/githooks/pre-push`** or **`WIKI_PRE_PUSH`** changed, **`README.md`** (Assistant preamble table), **`proposed/README.md`**, **`schema/AGENTS.md`** (githooks bullet), **`schema/karpathy-llm-wiki-bridge.md`** (**Pytest leg**), **`scripts/githooks/README.md`**, **`Makefile`** **`make help`**, **`tests/test_githooks_wiring.py`**, **`tests/test_pipeline_step_order.py`**, and **`tests/test_karpathy_bridge_docs.py`** still agree
+- [ ] If **`scripts/githooks/pre-push`** or **`WIKI_PRE_PUSH`** changed, **`README.md`** (Assistant preamble table), **`proposed/README.md`**, **`schema/AGENTS.md`** (githooks bullet), **`schema/karpathy-llm-wiki-bridge.md`** (**Pytest leg**), **`scripts/githooks/README.md`**, **`Makefile`** **`make help`**, **`tests/test_githooks_wiring.py`**, **`tests/test_pipeline_step_order.py`**, **`tests/test_make_wiki_all_recipe.py`**, and **`tests/test_karpathy_bridge_docs.py`** still agree

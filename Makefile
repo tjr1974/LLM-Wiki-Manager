@@ -70,7 +70,7 @@ help:
 	@echo "make wiki-manager-refresh-dry  # list + snapshot + base-vs-manager-full --dry-run + full --dry-run (safe without child paths)"
 	@echo "make wiki-all       # wiki-test + wiki-ci + wiki-quality-gate + wiki-restore-runtime (clean ai/runtime/ after local parity)"
 	@echo "make wiki-test      # pytest -q then wiki-restore-runtime (fast loop; leaves ai/runtime/ matching HEAD)"
-	@echo '  (wiki-test: no extra make goals after the target—e.g. make wiki-test -q is invalid; README Pre-push; tests/test_githooks_wiring.py tests/test_pipeline_step_order.py)'
+	@echo '  (wiki-test: no extra make goals after the target—e.g. make wiki-test -q is invalid; README Pre-push; tests/test_githooks_wiring.py tests/test_pipeline_step_order.py tests/test_make_wiki_all_recipe.py)'
 	@echo "make wiki-restore-runtime  # git checkout -- ai/runtime/ (drop timestamp-only test/gate churn)"
 	@echo "  (autopilot: python3 scripts/autopilot.py [--with-queue] [--ci-parity] [--strict]; --ci-parity hard-fails lint_wiki, validate_human_text, validate_external_links like make wiki-ci)"
 	@echo "  (daemon: python3 scripts/daemon.py [--ci-parity] [--strict] … forwards flags to autopilot each cycle)"
