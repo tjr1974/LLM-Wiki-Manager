@@ -220,6 +220,7 @@ def test_root_agents_lists_bridge() -> None:
     assert "## Regression tests" in agents
     assert "Canonical development hub" in agents
     assert "Machine-first repository" in agents
+    assert "## Local full gate (Manager)" in agents
     assert "Gist navigation" in agents
     assert "index/index.md" in agents
     assert "wiki/main.md" in agents
@@ -308,6 +309,8 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-manager-refresh-dry" in quickstart
     schema_agents = (ROOT / "schema" / "AGENTS.md").read_text(encoding="utf-8")
     assert "## Regression tests" in schema_agents
+    assert "## Local full gate (Manager)" in schema_agents
+    assert "WIKI_PRE_PUSH=all" in schema_agents
     assert "machine-first" in schema_agents.lower()
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in schema_agents
     bridge = (ROOT / "schema" / "karpathy-llm-wiki-bridge.md").read_text(encoding="utf-8")
