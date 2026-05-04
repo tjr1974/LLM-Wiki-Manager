@@ -59,6 +59,8 @@ Scripts do **not** merge **`wiki/`** prose into children unattended. Use **Manag
 | 4 | **`make wiki-manager-fork-delta-full`** with **`WIKI_MANAGER_COMPARE_ROOT`** set so each child bundle diffs **Base Model** (left) versus that child (right). Use **`fork_delta_backlog.md`** under each **`ai/runtime/manager/<id>/`** for cherry-pick order. |
 | 5 | In each child repo run **`make wiki-all`** (or their documented merge gate) after ports. |
 
+**LLM Wiki Manager local parity.** **`make wiki-all`** chains **`wiki-test`** (which already restores **`ai/runtime/`**), then **`wiki-ci`**, **`wiki-quality-gate`**, and **`wiki-restore-runtime`** again so **`wiki-ci`** timestamps do not leave **`ai/runtime/`** dirty. Domain children may use different documented gates.
+
 ## See also
 
 - See also [[main]] (hub)
