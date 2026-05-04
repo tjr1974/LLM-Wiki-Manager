@@ -407,6 +407,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "tests/test_pipeline_step_order.py" in ci_yml
     assert "tests/test_karpathy_bridge_docs.py" in ci_yml
     assert "tests/test_make_wiki_all_recipe.py" in ci_yml
+    assert "again after **`wiki-quality-gate`**" in ci_yml
     assert "wiki-log-tail" in ci_yml
     assert "make wiki-hub" in ci_yml
     assert "index drift" in ci_yml
@@ -451,6 +452,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki/synthesis" in pr_tpl
     issue_tpl = (ROOT / ".github" / "ISSUE_TEMPLATE" / "wiki-toolchain.md").read_text(encoding="utf-8")
     assert "make wiki-test -q" in issue_tpl
+    assert "tail **`wiki-restore-runtime`**" in issue_tpl
     assert "**Pytest leg**" in issue_tpl
     assert "proposed/README.md" in issue_tpl
     assert "Makefile" in issue_tpl and "top-of-file" in issue_tpl
@@ -465,6 +467,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert issue_tpl.count("proposed/README.md") >= 2
     parity = issue_tpl.split("**Pytest and CI parity**", 1)[1]
     assert "tests/test_pipeline_step_order.py" in parity[:1200]
+    assert "tests/test_make_wiki_all_recipe.py" in parity[:1200]
     assert "tests/test_karpathy_bridge_docs.py" in parity[:1200]
     assert "tests/test_githooks_wiring.py" in parity[:1200]
     assert "**`schema/AGENTS.md`** (githooks bullet)" in issue_tpl
@@ -480,6 +483,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "test_makefile_help_wiki_hub_echo_mentions_gitignore_policy" in issue_tpl
     assert ".cursor/rules" in issue_tpl
     assert "test_pipeline_step_order.py" in issue_tpl
+    assert "test_make_wiki_all_recipe.py" in issue_tpl
     assert "test_wiki_manager_fork_delta.py" in issue_tpl
     assert "wiki_family_snapshot.py" in issue_tpl
     assert "wiki-manager-refresh-dry" in issue_tpl
