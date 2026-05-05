@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -41,6 +42,51 @@ def test_wiki_family_snapshot_json_shape() -> None:
     base_rows = [x for x in repos if x.get("role") == "llm-wiki-base-model"]
     assert len(base_rows) == 1
     assert base_rows[0].get("path_resolved") is False
+    assert data.get("warnings") == []
+    assert data.get("warning_codes") == []
+    assert len(data.get("warnings") or []) == len(data.get("warning_codes") or [])
+
+
+def test_wiki_family_snapshot_warns_compare_root_same_as_child(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mod = _load_wiki_family_snapshot()
+    mgr = tmp_path / "mgr"
+    mgr.mkdir()
+    shared = tmp_path / "shared-checkout"
+    shared.mkdir()
+    reg = {
+        "v": 1,
+        "managed_children": [{"id": "dup-child", "label": "Dup", "path_env": "E_CHILD_PATH"}],
+    }
+    (mgr / "registry.json").write_text(json.dumps(reg), encoding="utf-8")
+    monkeypatch.setenv("E_CHILD_PATH", str(shared))
+    monkeypatch.setenv("WIKI_MANAGER_COMPARE_ROOT", str(shared))
+    registry = mod.load_wiki_manager_registry(mgr, "registry.json")
+    snap = mod.build_snapshot(mgr, registry)
+    ws = snap.get("warnings") or []
+    codes = snap.get("warning_codes") or []
+    assert len(ws) == len(codes)
+    assert mod.WARNING_COMPARE_ROOT_EQUALS_MANAGED_CHILD in codes
+    assert any("same directory as managed child" in w for w in ws), ws
+
+
+def test_wiki_family_snapshot_warns_compare_root_is_manager(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mod = _load_wiki_family_snapshot()
+    mgr = tmp_path / "mgr"
+    mgr.mkdir()
+    reg = {"v": 1, "managed_children": []}
+    (mgr / "registry.json").write_text(json.dumps(reg), encoding="utf-8")
+    monkeypatch.setenv("WIKI_MANAGER_COMPARE_ROOT", str(mgr.resolve()))
+    registry = mod.load_wiki_manager_registry(mgr, "registry.json")
+    snap = mod.build_snapshot(mgr, registry)
+    ws = snap.get("warnings") or []
+    codes = snap.get("warning_codes") or []
+    assert len(ws) == len(codes)
+    assert codes == [mod.WARNING_COMPARE_ROOT_IS_MANAGER]
+    assert any("points at this manager checkout" in w for w in ws), ws
 
 
 def test_make_wiki_manager_snapshot_json_runs() -> None:
@@ -74,3 +120,26 @@ def test_wiki_family_snapshot_text_includes_manager_root() -> None:
     assert r.returncode == 0, r.stderr + r.stdout
     assert "manager_root:" in r.stdout
     assert str(ROOT.resolve()) in r.stdout
+
+
+def test_wiki_family_snapshot_text_prefixes_warning_with_code(tmp_path: Path) -> None:
+    mgr = tmp_path / "mgr"
+    mgr.mkdir()
+    (mgr / "registry.json").write_text(json.dumps({"v": 1, "managed_children": []}), encoding="utf-8")
+    env = dict(os.environ)
+    env["WIKI_MANAGER_COMPARE_ROOT"] = str(mgr.resolve())
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "wiki_family_snapshot.py"),
+            "--repo-root",
+            str(mgr),
+            "--registry",
+            "registry.json",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert r.returncode == 0, r.stderr + r.stdout
+    assert "warning [compare_root_is_manager]:" in r.stdout

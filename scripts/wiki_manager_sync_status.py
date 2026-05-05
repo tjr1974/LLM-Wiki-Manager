@@ -4,8 +4,13 @@
 Writes **ai/runtime/manager/sync_status.min.json** (gitignored) so agents and
 dashboards can read one file after **make wiki-manager-report** or
 **make wiki-manager-fork-delta-full**. Does **not** run diffs itself.
+Prepends **family_snapshot.warnings** (compare-root versus manager or child path
+collisions) ahead of drift-mode warnings so misconfigured env vars surface first.
+Duplicates **family_snapshot.warning_codes** as top-level **family_snapshot_warning_codes**
+for shallow JSON consumers (**jq** / dashboards) without losing the nested snapshot.
 
-See **schema/wiki-manager.md** (**make wiki-manager-sync-status**).
+See **schema/wiki-manager.md** (**make wiki-manager-sync-status**) and
+**schema/karpathy-llm-wiki-bridge.md** (**Rollup JSON warning codes**).
 """
 
 from __future__ import annotations
@@ -50,6 +55,13 @@ def _digest_fork_delta_report(path: Path) -> dict | None:
     }
 
 
+def _family_snapshot_warning_codes(snap: dict) -> list[str]:
+    raw = snap.get("warning_codes")
+    if not isinstance(raw, list):
+        return []
+    return [x for x in raw if isinstance(x, str)]
+
+
 def _digest_fork_delta_summary(path: Path) -> dict | None:
     if not path.is_file():
         return None
@@ -87,7 +99,7 @@ def build_sync_status(manager_root: Path, registry_rel: str) -> dict:
         )
     elif Path(base_path).resolve() == mr.resolve():
         drift_mode = "manager-vs-child"
-        warnings.append("compare_root resolves to manager_root; same as unset for fork-delta purposes.")
+        # family_snapshot.warnings already records compare_root == manager_root.
     else:
         drift_mode = "base-model-vs-child"
 
@@ -110,11 +122,17 @@ def build_sync_status(manager_root: Path, registry_rel: str) -> dict:
         }
         children.append(row)
 
+    snap_warns = snap.get("warnings")
+    if isinstance(snap_warns, list):
+        prefix = [w for w in snap_warns if isinstance(w, str) and w.strip()]
+        warnings = prefix + warnings
+
     return {
         "v": 1,
         "generated_at": utc_now_iso(),
         "drift_compare_mode": drift_mode,
         "drift_warnings": warnings,
+        "family_snapshot_warning_codes": _family_snapshot_warning_codes(snap),
         "family_snapshot": snap,
         "managed_children": children,
     }

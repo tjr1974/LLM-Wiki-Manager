@@ -28,6 +28,7 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "detect_contradictions.py",
         "domain_targets.v",
         "editorial-policy.md",
+        "family_snapshot_warning_codes",
         "fix_citation_metadata.py",
         "fork-sync.md",
         "git add -f wiki/synthesis/hub-index.md",
@@ -62,11 +63,13 @@ WIKI_CORPUS_AUTHORING_PROMPT_NEEDLES: frozenset[str] = frozenset(
         "RESOLVED_PYTHON",
         "Root screenshots",
         "scripts/find_sources_for_topic.py",
+        "scripts/wiki_family_snapshot.py",
         "skipped_no_dashboard",
         "source_authority.v1.json",
         "wiki-fix-citations-dry",
         "wiki-log-tail",
         "wiki-manager-refresh-dry",
+        "warning_codes",
         "wiki-restore-runtime",
         "make wiki-test -q",
         "wiki-test",
@@ -174,6 +177,8 @@ def test_wiki_manager_doc_lists_regression_tests() -> None:
 
 def test_llm_wiki_family_repositories_mentions_subprocess_python_hygiene() -> None:
     text = (ROOT / "wiki" / "synthesis" / "llm-wiki-family-repositories.md").read_text(encoding="utf-8")
+    assert "family_snapshot_warning_codes" in text
+    assert "warning_codes" in text
     assert "RESOLVED_PYTHON" in text
     assert "tests/_resolved_python.py" in text
     assert "tests/test_build_hub_links.py" in text
@@ -213,6 +218,8 @@ def test_karpathy_bridge_schema_doc_present_and_linked() -> None:
     assert "llm-wiki-family-repositories.md" in text
     assert "markdown tables" in text.lower()
     assert "wiki-manager-refresh-dry" in text
+    assert "family_snapshot_warning_codes" in text
+    assert "warning_codes" in text
 
 
 def test_karpathy_bridge_memex_supervised_ingest_and_large_index_mitigations() -> None:
@@ -268,6 +275,7 @@ def test_root_agents_lists_bridge() -> None:
     assert "wiki-toolchain.md" in agents
     assert "config.yml" in agents
     assert "llm_wiki_" in agents
+    assert "family_snapshot_warning_codes" in agents
     assert "Root screenshots" in agents
     assert "prompts/ingest.txt" in agents
 
@@ -463,6 +471,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "compare_root_env" in readme
     assert ".github/workflows/ci.yml" in readme
     assert "wiki_manager_sync_status.py" in readme
+    assert "family_snapshot_warning_codes" in readme
     assert "machine-first" in readme.lower()
     assert "Operator synthesis and `lint_wiki.py` claim bullets" in readme
     assert "llm_wiki_" in readme
@@ -474,12 +483,16 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-log-tail" in main_wiki
     assert "wiki-manager-refresh-dry" in main_wiki
     assert "wiki_manager_sync_status.py" in main_wiki
+    assert "family_snapshot_warning_codes" in main_wiki
     assert "schema/wiki-manager.md" in main_wiki
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert "karpathy-llm-wiki-bridge.md" in makefile
     assert "writeback_artifact.py" in makefile
     assert "wiki-log-tail" in makefile
+    assert "family_snapshot_warning_codes" in makefile
+    assert "wiki-manager-sync-status" in makefile
     proposed_readme = (ROOT / "proposed" / "README.md").read_text(encoding="utf-8")
+    assert "family_snapshot_warning_codes" in proposed_readme
     assert "compare_root_env" in proposed_readme
     assert "wiki-manager-refresh-dry" in proposed_readme
     assert "schema/wiki-manager.md" in proposed_readme
@@ -536,6 +549,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki-manager-sync-status" in ci_yml
     assert "wiki-manager-refresh-dry" in ci_yml
     assert "wiki_manager_sync_status.py" in ci_yml
+    assert "family_snapshot_warning_codes" in ci_yml
     assert "Wiki manager sync rollup script smoke" in ci_yml
     assert "test_wiki_manager_fork_delta.py" in ci_yml
     assert "test_wiki_family_snapshot.py" in ci_yml
@@ -569,6 +583,7 @@ def test_orientation_docs_remain_linked() -> None:
     assert "wiki_manager_fork_delta.py" in pr_tpl
     assert "wiki_family_snapshot.py" in pr_tpl
     assert "wiki_manager_sync_status.py" in pr_tpl
+    assert "family_snapshot_warning_codes" in pr_tpl
     assert "fork_delta_report.py" in pr_tpl
     assert "wiki-manager-sync-status-json" in pr_tpl
     assert "compare_root_env" in pr_tpl
@@ -691,6 +706,7 @@ def test_ingest_prompt_mentions_root_screenshot_hygiene() -> None:
     assert "Pytest subprocess hygiene" in text
     assert "module docstrings cross-link" in text
     assert "compare_root_env" in text
+    assert "family_snapshot_warning_codes" in text
     assert "wiki-manager-refresh-dry" in text
     assert "schema/wiki-manager.md" in text
     assert "make wiki-test -q" in text
@@ -711,6 +727,7 @@ def test_wiki_edit_prompt_mentions_query_writeback() -> None:
     assert "module docstrings cross-link" in edit
     assert "Avoid semicolons" in edit
     assert "compare_root_env" in edit
+    assert "family_snapshot_warning_codes" in edit
     assert "wiki-manager-refresh-dry" in edit
     assert "human-wiki-automation-boundary.md" in edit
     assert "make wiki-test -q" in edit
@@ -751,6 +768,7 @@ def test_llm_wiki_family_synthesis_page_lists_four_paths() -> None:
     assert "tests/test_makeflags_inheritance.py" in body
     assert "RESOLVED_PYTHON" in body
     assert "module docstrings cross-link" in body
+    assert "family_snapshot_warning_codes" in body
 
 
 def test_cursor_wiki_rules_files_present_and_scoped() -> None:
@@ -782,6 +800,7 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "tests/test_make_wiki_all_recipe.py" in a
     assert "tests/test_karpathy_bridge_docs.py" in a
     assert "tests/test_wiki_manager_sync_status.py" in a
+    assert "family_snapshot_warning_codes" in a
     assert "tests/test_githooks_wiring.py" in a
     assert "scripts/githooks/README.md" in a
     assert "human-wiki-automation-boundary.md" in a
@@ -839,6 +858,8 @@ def test_cursor_wiki_rules_files_present_and_scoped() -> None:
     assert "wiki-toolchain.md" in p
     assert "config.yml" in p
     assert "wiki_manager_fork_delta.py" in p
+    assert "family_snapshot_warning_codes" in p
+    assert "warning_codes" in p
     assert "**`.github/workflows/ci.yml`** (comments near **`wiki-test`**" in p
     assert "## Machine-first repository (LLM Wiki Manager)" in p
     assert "## Canonical development hub" in p
@@ -898,6 +919,13 @@ def test_wiki_manager_fork_delta_docstring_references_bridge() -> None:
     assert "## Regression tests" in text
 
 
+def test_env_example_documents_manager_sync_rollup_contract() -> None:
+    """`.env.example` stays aligned with README and schema/wiki-manager.md rollup JSON."""
+    text = (ROOT / ".env.example").read_text(encoding="utf-8")
+    assert "family_snapshot_warning_codes" in text
+    assert "family_snapshot.warning_codes" in text
+
+
 def test_pipeline_scripts_docstrings_reference_bridge() -> None:
     """Ingest, compile, lint, query, rollup, and queue helpers stay tied to the gist mapping."""
     for rel in (
@@ -935,6 +963,8 @@ def test_pipeline_scripts_docstrings_reference_bridge() -> None:
         "scripts/apply_global_nav_to_human_site.py",
         "scripts/writeback_artifact.py",
         "scripts/fork_delta_report.py",
+        "scripts/wiki_family_snapshot.py",
         "scripts/wiki_manager_fork_delta.py",
+        "scripts/wiki_manager_sync_status.py",
     ):
         assert "karpathy-llm-wiki-bridge.md" in (ROOT / rel).read_text(encoding="utf-8"), rel

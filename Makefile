@@ -65,9 +65,9 @@ help:
 	@echo 'make wiki-manager-report-from-base WIKI_MANAGER_ARGS="..."  # same as report but requires WIKI_MANAGER_COMPARE_ROOT (Base Model left side)'
 	@echo 'make wiki-manager-fork-delta-full WIKI_MANAGER_ARGS="--dry-run"  # per-child bundles under ai/runtime/manager/<id>/'
 	@echo 'make wiki-manager-fork-delta-from-base WIKI_MANAGER_ARGS="..."  # full pipeline; fails fast unless Base Model compare root is set'
-	@echo "make wiki-manager-sync-status  # family snapshot + per-child fork_delta metrics -> ai/runtime/manager/sync_status.min.json"
+	@echo "make wiki-manager-sync-status  # rollup JSON: family_snapshot + drift_warnings + family_snapshot_warning_codes + per-child fork_delta digests -> ai/runtime/manager/sync_status.min.json"
 	@echo "make wiki-manager-sync-status-json  # same with JSON on stdout"
-	@echo "make wiki-manager-snapshot  # paths + optional git HEAD/dirty counts (python3 scripts/wiki_family_snapshot.py)"
+	@echo "make wiki-manager-snapshot  # family paths + optional git HEAD/dirty. JSON includes warnings + warning_codes when compare_root collides (python3 scripts/wiki_family_snapshot.py)"
 	@echo "make wiki-manager-snapshot-json  # same as wiki-manager-snapshot with --json on stdout"
 	@echo "make wiki-manager-base-vs-manager-report  # Base Model vs Manager fork_delta_report (needs WIKI_MANAGER_COMPARE_ROOT)"
 	@echo 'make wiki-manager-base-vs-manager-full WIKI_MANAGER_ARGS="--dry-run"  # full pipeline for Base vs Manager bundle'

@@ -344,6 +344,7 @@ def test_ci_yml_wiki_manager_sync_smoke_follows_wiki_test_before_wiki_ci() -> No
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "Wiki manager sync rollup script smoke" in text
     assert "wiki_manager_sync_status.py --json" in text
+    assert "family_snapshot_warning_codes" in text
     a = text.index("- name: Run unit tests (make wiki-test)")
     b = text.index("- name: Wiki manager sync rollup script smoke")
     c = text.index("- name: Run wiki CI gates")

@@ -7,7 +7,14 @@ registered child paths from **ai/schema/wiki_manager_registry.v1.json**.
 For each directory that exists, records whether it is a Git checkout, short
 **HEAD**, and a dirty file count (**git status --porcelain**).
 
-See **schema/wiki-manager.md** and **wiki/synthesis/llm-wiki-family-repositories.md**.
+When **compare_root_env** resolves to the manager directory or to the same path as a
+managed child, **warnings** lists human text and **warning_codes** lists stable keys
+(**`compare_root_is_manager`**, **`compare_root_equals_managed_child`**) in the same
+order. The snapshot still labels that row **LLM Wiki Base Model** by convention;
+operators must fix env paths.
+
+See **schema/wiki-manager.md**, **wiki/synthesis/llm-wiki-family-repositories.md**, and
+**schema/karpathy-llm-wiki-bridge.md** (**Parent and child checkout hygiene**, **Rollup JSON warning codes**).
 """
 
 from __future__ import annotations
@@ -24,6 +31,10 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 from wiki_paths import resolve_repo_root  # noqa: E402
 
 DEFAULT_REGISTRY_REL = "ai/schema/wiki_manager_registry.v1.json"
+
+# Stable keys for **warning_codes** (parallel to **warnings**); keep in sync with tests.
+WARNING_COMPARE_ROOT_IS_MANAGER = "compare_root_is_manager"
+WARNING_COMPARE_ROOT_EQUALS_MANAGED_CHILD = "compare_root_equals_managed_child"
 
 
 def _load_registry(manager_root: Path, registry_rel: str) -> dict:
@@ -194,11 +205,50 @@ def build_snapshot(manager_root: Path, registry: dict) -> dict:
                 }
             )
 
-    return {"v": 1, "manager_root": str(mr), "repos": rows}
+    warn_pairs: list[tuple[str, str]] = []
+    if base is not None:
+        br = base.resolve()
+        if br == mr:
+            warn_pairs.append(
+                (
+                    WARNING_COMPARE_ROOT_IS_MANAGER,
+                    f"{env_key} points at this manager checkout; fork-delta compare-root should be a "
+                    "sibling Base Model tree, not the coordinator.",
+                )
+            )
+        for child in _managed_children(registry):
+            cp = _child_path(child)
+            if cp is None or not cp.is_dir():
+                continue
+            if cp.resolve() == br:
+                warn_pairs.append(
+                    (
+                        WARNING_COMPARE_ROOT_EQUALS_MANAGED_CHILD,
+                        f"{env_key} resolves to the same directory as managed child {child['id']!r} "
+                        f"({child['path_env']}); fork-delta upstream and downstream roots must differ.",
+                    )
+                )
+
+    warning_codes = [p[0] for p in warn_pairs]
+    warnings = [p[1] for p in warn_pairs]
+    return {
+        "v": 1,
+        "manager_root": str(mr),
+        "repos": rows,
+        "warnings": warnings,
+        "warning_codes": warning_codes,
+    }
 
 
 def _print_text(snapshot: dict) -> None:
     print(f"manager_root: {snapshot['manager_root']}")
+    codes = snapshot.get("warning_codes") or []
+    warns = snapshot.get("warnings") or []
+    for i, w in enumerate(warns):
+        if isinstance(w, str) and w.strip():
+            code = codes[i] if i < len(codes) and isinstance(codes[i], str) else ""
+            prefix = f"warning [{code}]: " if code else "warning: "
+            print(prefix + w)
     for r in snapshot["repos"]:
         role = r.get("role", "")
         label = r.get("label", r.get("id", ""))

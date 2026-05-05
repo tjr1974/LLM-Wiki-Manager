@@ -42,7 +42,7 @@ jobs:
       # Smoke: ``wiki_manager_sync_status`` must import and emit valid JSON without sibling env paths.
       - name: Wiki manager sync rollup script smoke
         run: |
-          python3 scripts/wiki_manager_sync_status.py --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('v')==1; assert 'drift_compare_mode' in d; assert 'family_snapshot' in d"
+          python3 scripts/wiki_manager_sync_status.py --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('v')==1; assert 'drift_compare_mode' in d; assert 'family_snapshot' in d; assert 'family_snapshot_warning_codes' in d; assert isinstance(d.get('family_snapshot_warning_codes'), list)"
 
       # Forks may pass VALIDATE_WIKI_ARGS (for example --strict-citation-meta) on make wiki-validate / wiki-check / wiki-ci or export it before autopilot.py / daemon.py.
       # Forks with a compiled human/site/ export may additionally run: make wiki-static-export-check (requires human/site/meta.json).

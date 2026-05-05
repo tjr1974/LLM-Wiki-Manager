@@ -54,6 +54,8 @@ def test_wiki_manager_sync_status_json_shape(tmp_path: Path, monkeypatch: pytest
     assert isinstance(kids, list) and len(kids) == 1
     assert kids[0].get("id") == "sync-test-wiki"
     assert kids[0].get("fork_delta_report") is None
+    assert data.get("family_snapshot_warning_codes") == []
+    assert data.get("family_snapshot_warning_codes") == (snap.get("warning_codes") or [])
 
 
 def test_wiki_manager_sync_status_warning_uses_registry_compare_root_env(tmp_path: Path) -> None:
@@ -84,6 +86,7 @@ def test_wiki_manager_sync_status_warning_uses_registry_compare_root_env(tmp_pat
     warns = data.get("drift_warnings") or []
     assert any("MY_ITEST_COMPARE_ROOT unset or invalid" in w for w in warns)
     assert not any("WIKI_MANAGER_COMPARE_ROOT unset or invalid" in w for w in warns)
+    assert data.get("family_snapshot_warning_codes") == []
 
 
 def test_wiki_manager_sync_status_digests_report_when_present(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -139,6 +142,9 @@ def test_wiki_manager_sync_status_digests_report_when_present(tmp_path: Path, mo
     assert r.returncode == 0, r.stderr + r.stdout
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data["drift_compare_mode"] == "base-model-vs-child"
+    assert data.get("family_snapshot_warning_codes") == []
+    dw = data.get("drift_warnings") or []
+    assert not any("same directory as managed child" in w for w in dw)
     row = data["managed_children"][0]["fork_delta_report"]
     assert row is not None
     assert row["high_priority_upstream_paths"] == 2
@@ -146,6 +152,50 @@ def test_wiki_manager_sync_status_digests_report_when_present(tmp_path: Path, mo
     assert row["review_queue"] == 1
     summ = data["managed_children"][0]["fork_delta_summary"]
     assert summ and summ.get("recommendation") == "review_safe_paths_first"
+
+
+def test_wiki_manager_sync_status_prepends_family_snapshot_warnings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mgr = tmp_path / "mgr"
+    mgr.mkdir()
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    reg = {
+        "v": 1,
+        "managed_children": [
+            {"id": "overlap-wiki", "label": "Overlap", "path_env": "WIKI_MANAGER_ITEST_OVERLAP_CHILD"},
+        ],
+    }
+    (mgr / "registry.json").write_text(json.dumps(reg), encoding="utf-8")
+    monkeypatch.setenv("WIKI_MANAGER_ITEST_OVERLAP_CHILD", str(shared))
+    monkeypatch.setenv("WIKI_MANAGER_COMPARE_ROOT", str(shared))
+    out_rel = "sync_overlap.json"
+    r = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/wiki_manager_sync_status.py"),
+            "--repo-root",
+            str(mgr),
+            "--registry",
+            "registry.json",
+            "--out",
+            out_rel,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0, r.stderr + r.stdout
+    data = json.loads((mgr / out_rel).read_text(encoding="utf-8"))
+    dw = data.get("drift_warnings") or []
+    assert dw and "same directory as managed child" in dw[0]
+    snap = data.get("family_snapshot") or {}
+    sw = snap.get("warnings") or []
+    sc = snap.get("warning_codes") or []
+    assert len(sw) == len(sc)
+    assert "compare_root_equals_managed_child" in sc
+    assert any("same directory as managed child" in w for w in sw)
+    assert data.get("family_snapshot_warning_codes") == ["compare_root_equals_managed_child"]
 
 
 def test_make_wiki_manager_sync_status_json_runs() -> None:
@@ -159,3 +209,4 @@ def test_make_wiki_manager_sync_status_json_runs() -> None:
     data = json.loads(combined[start:end])
     assert data.get("v") == 1
     assert "drift_compare_mode" in data
+    assert data.get("family_snapshot_warning_codes") == []
