@@ -1,0 +1,17 @@
+{
+  "v": 1,
+  "compare_root_env": "WIKI_MANAGER_COMPARE_ROOT",
+  "description": "Registers domain child repos coordinated from LLM Wiki Manager. Each path_env must name an absolute path on the operator machine.",
+  "managed_children": [
+    {
+      "id": "shaolin-monastery-research-system",
+      "label": "Shaolin Monastery Research System",
+      "path_env": "WIKI_MANAGER_CHILD_SHAOLIN"
+    },
+    {
+      "id": "tai-pan-wiki",
+      "label": "Tai-Pan Wiki",
+      "path_env": "WIKI_MANAGER_CHILD_TAI_PAN"
+    }
+  ]
+}
