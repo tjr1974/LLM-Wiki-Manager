@@ -50,7 +50,7 @@ You may STOP only after **ALL** items are true unless the user revises prioritie
 
 - [ ] **`tests/`** cover the **golden paths** plus at least **one adversarial guard** per major warning class CI relies on.
 
-**Optional** (nice-to-have, **not required** unless the user insists): deterministic **path-mapped subtree diffs** between Base Model layouts and reorganized forks (Shaolin **`platform/scripts`** vs **`scripts`**). Scope that as a separate subcommand/design note if tackled.
+**Optional** (nice-to-have, **not required** unless the user insists): deterministic **path-mapped subtree diffs** between Base Model layouts and reorganized forks (Shaolin **`platform/scripts`** vs **`scripts`**). Operator recipe for **`CHILD_PATH_OVERRIDES`** + **`make fork-delta-full`**: **`schema/wiki-manager.md`** (**Human-facing wiki universalization**) and **`make coord-fork-delta-help`** in this repo (also prints **`fork-delta`** + **`fork-delta-scan`** Phase **0** triage). Capability checklist (what should be universal on the human wiki surface): **LLM Wiki Base Model** **`schema/human-wiki-universal-backlog.md`** (**phases 0–4** with **`schema/fork-sync.md`**).
 
 ---
 

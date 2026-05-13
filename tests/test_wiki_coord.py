@@ -426,7 +426,31 @@ def test_registry_managed_child_id_must_be_nonempty(fake_manager: Path):
     )
     cp = _run_coord(fake_manager, ["list"])
     assert cp.returncode != 0
-    assert ".id missing or empty" in cp.stderr
+    assert ".id must be a non-empty string" in cp.stderr
+
+
+def test_registry_managed_child_id_rejects_json_null(fake_manager: Path):
+    corrupt = json.loads((_REPO / "schema" / "wiki_family_registry.v1.json").read_text(encoding="utf-8"))
+    corrupt["managed_children"][0]["id"] = None
+    (fake_manager / "schema" / "wiki_family_registry.v1.json").write_text(
+        json.dumps(corrupt),
+        encoding="utf-8",
+    )
+    cp = _run_coord(fake_manager, ["list"])
+    assert cp.returncode != 0
+    assert ".id must be a non-empty string" in cp.stderr
+
+
+def test_registry_managed_child_path_env_rejects_json_null(fake_manager: Path):
+    corrupt = json.loads((_REPO / "schema" / "wiki_family_registry.v1.json").read_text(encoding="utf-8"))
+    corrupt["managed_children"][0]["path_env"] = None
+    (fake_manager / "schema" / "wiki_family_registry.v1.json").write_text(
+        json.dumps(corrupt),
+        encoding="utf-8",
+    )
+    cp = _run_coord(fake_manager, ["list"])
+    assert cp.returncode != 0
+    assert ".path_env must be a non-empty string" in cp.stderr
 
 
 def test_registry_managed_child_must_have_path_env(fake_manager: Path):
@@ -461,3 +485,48 @@ def test_make_coord_ci_smoke_exits_zero():
         timeout=120,
     )
     assert cp.returncode == 0, cp.stdout + cp.stderr
+
+
+def test_wiki_coord_help_epilog_mentions_fork_delta_help():
+    cp = subprocess.run(
+        [sys.executable, str(_COORD), "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert cp.returncode == 0, cp.stderr
+    # argparse may wrap the epilog across lines (e.g. "coord-\nfork-delta-help").
+    out = (cp.stdout + cp.stderr).replace("\n", "")
+    assert "coord-fork-delta-help" in out
+    assert "fork-sync" in out.lower() or "fork-delta" in out.lower()
+
+
+@pytest.mark.skipif(shutil.which("make") is None, reason="make not installed")
+def test_make_help_lists_coord_fork_delta_help():
+    cp = subprocess.run(
+        ["make", "-C", str(_REPO), "help"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert cp.returncode == 0, cp.stderr
+    assert "coord-fork-delta-help" in cp.stdout + cp.stderr
+
+
+@pytest.mark.skipif(shutil.which("make") is None, reason="make not installed")
+def test_make_coord_fork_delta_help_prints_base_model_recipe():
+    cp = subprocess.run(
+        ["make", "-C", str(_REPO), "coord-fork-delta-help"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert cp.returncode == 0, cp.stderr
+    out = cp.stdout + cp.stderr
+    assert "fork-delta-full" in out
+    assert "WIKI_MANAGER_COMPARE_ROOT" in out
+    assert "CHILD_PATH_OVERRIDES" in out or "fork_delta_child_path_overrides" in out
+    assert "fork-delta-scan" in out
+    assert "human-wiki-universal-backlog" in out

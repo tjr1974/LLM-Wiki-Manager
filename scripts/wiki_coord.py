@@ -54,12 +54,16 @@ def load_registry(root: Path) -> dict[str, Any]:
     for i, row in enumerate(children):
         if not isinstance(row, dict):
             raise SystemExit(f"registry managed_children[{i}] must be an object")
-        cid = str(row.get("id", "")).strip()
-        penv = str(row.get("path_env", "")).strip()
-        if not cid:
-            raise SystemExit(f"registry managed_children[{i}].id missing or empty")
-        if not penv:
-            raise SystemExit(f"registry managed_children[{i}].path_env missing or empty")
+        raw_id = row.get("id")
+        if not isinstance(raw_id, str) or not raw_id.strip():
+            raise SystemExit(f"registry managed_children[{i}].id must be a non-empty string")
+        cid = raw_id.strip()
+        raw_penv = row.get("path_env")
+        if not isinstance(raw_penv, str) or not raw_penv.strip():
+            raise SystemExit(
+                f"registry managed_children[{i}].path_env must be a non-empty string"
+            )
+        penv = raw_penv.strip()
         if penv in seen_pen:
             raise SystemExit(f"duplicate managed_children[].path_env after strip: {penv}")
         seen_pen.add(penv)
@@ -319,7 +323,13 @@ def ci_smoke_check_stdin() -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="LLM Wiki Manager coordination CLI.")
+    ap = argparse.ArgumentParser(
+        description="LLM Wiki Manager coordination CLI.",
+        epilog=(
+            "Fork-delta and script-tree diffs run from the LLM Wiki Base Model checkout "
+            "(see that repo's schema/fork-sync.md). From this manager repo: make coord-fork-delta-help"
+        ),
+    )
     ap.add_argument(
         "--repo-root",
         default=None,
