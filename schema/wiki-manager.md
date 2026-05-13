@@ -50,6 +50,17 @@ python3 scripts/wiki_coord.py status --json --out runtime/sync_status.min.json
 
 The snapshot includes **`family_snapshot_warning_codes`** (same codes as **`warning_codes`**) for shallow JSON consumers such as **`ci-smoke-check-stdin`**.
 
+## Fork-delta and child directory layout (Base Model checkout)
+
+**This coordinator does not run** **`fork_delta_report.py`**, **`make fork-delta`**, or **`make wiki-manager-*`**. Those live in **LLM Wiki Base Model** (see that repo’s **`schema/wiki-manager.md`**, **`schema/fork-sync.md`**, and **`Makefile`**).
+
+When you compare **Base Model** (`scripts/`, `human/`, …) to a child that uses a different top-level layout (for example **Shaolin** with **`platform/scripts/`** and **`web/human/`**), run fork-delta **from the Base Model tree** (or any checkout that vendors the same scripts) and use:
+
+- **`make fork-delta … CHILD_PATH_OVERRIDES=…`** — points at JSON mapping subsystem roots (see **`ai/schema/fork_delta_child_path_overrides.shaolin-monastery-research-system.v1.json`** in Base Model), or
+- **`wiki_manager_fork_delta.py`** with **`ai/schema/wiki_manager_registry.v1.json`** — optional per-child **`fork_delta_child_path_overrides_rel`** so **`make wiki-manager-report`** passes the same JSON automatically for registered children.
+
+**`wiki_coord`** snapshots here do not read those JSON files; they only record **`path_env`** paths and git state.
+
 ## Rollup JSON shape (`status`)
 
 Top-level rollup object (**`scripts/wiki_coord.py status`**, default **`runtime/sync_status.min.json`**):
@@ -72,3 +83,5 @@ Top-level rollup object (**`scripts/wiki_coord.py status`**, default **`runtime/
 ## Tests
 
 Regression coverage lives under **`tests/test_wiki_coord.py`**.
+
+Fork-delta, **`CHILD_PATH_OVERRIDES`**, and **`wiki_manager_fork_delta`** registry wiring are tested in **LLM Wiki Base Model** (**`tests/test_fork_delta_*.py`**, **`tests/test_wiki_manager_fork_delta.py`**).

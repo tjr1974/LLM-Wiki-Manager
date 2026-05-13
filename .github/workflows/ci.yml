@@ -1,58 +1,26 @@
-name: ci
+name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main]
 
 jobs:
-  test-and-gate:
+  coord:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements.txt
 
-      - name: Install deps
+      - name: Install test dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pytest + rollup smoke pipe
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      # **`wiki-test`** (**`pytest`** then **`wiki-restore-runtime`**) is the first leg of local **`make wiki-all`** and resets **`ai/runtime/`** before **`wiki-ci`**. Local **`make wiki-all`** also runs **`wiki-restore-runtime`** again after **`wiki-quality-gate`** so **`git status`** stays clean (**`README.md`**, **`schema/wiki-quickstart.md`**, **`tests/test_make_wiki_all_recipe.py`**). This job does not need that final checkout on an ephemeral runner.
-      # Do not confuse with **`make wiki-test -q`** (invalid **`make`** invocation. **README.md** Pre-push, **Assistant preamble → repo mechanics** table, **`proposed/README.md`**, **`schema/wiki-quickstart.md`** **Pytest and CI**, **`schema/karpathy-llm-wiki-bridge.md`** **Pytest leg**, **`schema/AGENTS.md`** githooks bullet, **`Makefile`** top comments, **`make help`**, **`tests/test_githooks_wiring.py`**, **`tests/test_pipeline_step_order.py`**, **`tests/conftest.py`**, **`tests/test_makeflags_inheritance.py`**, **`tests/test_make_wiki_all_recipe.py`**, **`tests/test_karpathy_bridge_docs.py`**).
-      # Subprocess tests that set **`cwd`** outside the checkout should pass **`tests/_resolved_python.py`** **`RESOLVED_PYTHON`** when **`sys.executable`** might be relative (**`schema/AGENTS.md`** **Pytest subprocess hygiene**, **`tests/test_build_hub_links.py`**, plus the note in that section that **`tests/conftest.py`** and **`tests/_resolved_python.py`** module docstrings cross-link **`MAKEFLAGS`** and **`RESOLVED_PYTHON`**).
-      # **`tests/test_human_text_rules.py::test_schema_agents_documents_each_md_glob`** keeps **`schema/AGENTS.md`** aligned with **`MD_GLOBS`** in **`scripts/validate_human_text.py`**.
-      # **`tests/test_pipeline_step_order.py`** keeps **`make wiki-ci`**, **`_wiki-md-core-gates`**, **`autopilot.py`**, **`schema/AGENTS.md`**, **`README`**, **`wiki-quickstart`**, and **`prompts/wiki-corpus-authoring.txt`** pipeline wording aligned (Markdown core gates include **`build_claims`** / **`build_coverage_matrix`** so **`ai/runtime`** stays consistent with validated wiki).
-      - name: Run unit tests (make wiki-test)
-        run: make wiki-test
-
-      # Smoke: ``wiki_manager_sync_status`` must import and emit valid JSON without sibling env paths.
-      - name: Wiki manager sync rollup script smoke
-        run: |
-          python3 scripts/wiki_manager_sync_status.py --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('v')==1; assert 'drift_compare_mode' in d; assert 'family_snapshot' in d; assert 'family_snapshot_warning_codes' in d; assert isinstance(d.get('family_snapshot_warning_codes'), list)"
-
-      # Forks may pass VALIDATE_WIKI_ARGS (for example --strict-citation-meta) on make wiki-validate / wiki-check / wiki-ci or export it before autopilot.py / daemon.py.
-      # Forks with a compiled human/site/ export may additionally run: make wiki-static-export-check (requires human/site/meta.json).
-      # Local corpus authoring helper (not gated here): make wiki-topic-sources ARGS='…' chains wiki-compile with scripts/find_sources_for_topic.py; see schema/wiki-quickstart.md and schema/karpathy-llm-wiki-bridge.md for gist-aligned vocabulary.
-      # Optional gist-style chronicle slice (not gated here): make wiki-log-tail prints recent dated headings from wiki/synthesis/activity-log.md. See schema/karpathy-llm-wiki-bridge.md.
-      # Optional hub rollup (not gated here): make wiki-hub writes wiki/synthesis/hub-index.md. On LLM Wiki Manager that path is .gitignore unless git add -f (README.md, schema/wiki-quickstart.md, schema/karpathy-llm-wiki-bridge.md). wiki-quickstart Operator note covers wiki-compile index drift versus HEAD when that file exists on disk.
-      # Optional local multi-repo fork-delta (not executed here): make wiki-manager-list / wiki-manager-snapshot / wiki-manager-snapshot-json / wiki-manager-sync-status / wiki-manager-sync-status-json / wiki-manager-refresh-dry / wiki-manager-report / wiki-manager-report-from-base / wiki-manager-base-vs-manager-report / wiki-manager-fork-delta-full / wiki-manager-fork-delta-from-base / wiki-manager-base-vs-manager-full (schema/wiki-manager.md; tests/test_wiki_manager_fork_delta.py tests/test_wiki_family_snapshot.py tests/test_wiki_manager_sync_status.py). Single-child: make fork-delta CHILD='…' COMPARE='…' (tests/test_make_fork_delta_compare.py, tests/test_fork_delta_report.py).
-      # GitHub filing only (not executed here): .github/ISSUE_TEMPLATE/wiki-toolchain.md for CI/Makefile drift reports; .github/ISSUE_TEMPLATE/config.yml allows blank issues.
-      # wiki-quality-gate is optional scaffold glue (skipped dashboard exits 0) and keeps the Makefile entry exercised in Actions.
-      - name: Run wiki CI gates
-        run: |
-          make wiki-ci
-          make wiki-quality-gate
+          make test
+          make coord-ci-smoke
